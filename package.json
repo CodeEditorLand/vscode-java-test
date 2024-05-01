@@ -497,24 +497,24 @@
 		"onCommand:java.test.debugFromJavaProjectExplorer"
 	],
 	"dependencies": {
-		"fs-extra": "^10.1.0",
-		"get-port": "^4.2.0",
-		"iconv-lite": "^0.6.3",
-		"lodash": "^4.17.21",
-		"lru-cache": "^7.17.0"
+		"fs-extra": "11.2.0",
+		"get-port": "7.1.0",
+		"iconv-lite": "0.6.3",
+		"lodash": "4.17.21",
+		"lru-cache": "10.2.2"
 	},
 	"devDependencies": {
 		"@playform/build": "0.0.7",
 		"@playform/document": "0.0.6",
-		"@types/fs-extra": "^9.0.13",
-		"@types/glob": "^7.2.0",
-		"@types/lodash": "^4.14.191",
-		"@types/lru-cache": "^7.10.10",
-		"@types/node": "^16.18.13",
-		"@types/sinon": "^10.0.13",
-		"glob": "^7.2.3",
-		"sinon": "^14.0.2",
-		"ts-loader": "^9.4.2"
+		"@types/fs-extra": "11.0.4",
+		"@types/glob": "8.1.0",
+		"@types/lodash": "4.17.0",
+		"@types/lru-cache": "7.10.10",
+		"@types/node": "20.12.7",
+		"@types/sinon": "17.0.3",
+		"glob": "10.3.12",
+		"sinon": "17.0.1",
+		"ts-loader": "9.5.1"
 	},
 	"extensionDependencies": [
 		"redhat.java",

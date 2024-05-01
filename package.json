@@ -1,33 +1,37 @@
 {
-	"name": "vscode-java-test",
-	"displayName": "Test Runner for Java",
-	"version": "0.0.1",
-	"private": false,
-	"description": "%description%",
-	"keywords": [
-		"land"
+	"activationEvents": [
+		"onLanguage:java",
+		"workspaceContains:pom.xml",
+		"workspaceContains:*/pom.xml",
+		"workspaceContains:build.gradle",
+		"workspaceContains:*/build.gradle",
+		"workspaceContains:settings.gradle",
+		"workspaceContains:*/settings.gradle",
+		"workspaceContains:build.gradle.kts",
+		"workspaceContains:*/build.gradle.kts",
+		"workspaceContains:settings.gradle.kts",
+		"workspaceContains:*/settings.gradle.kts",
+		"workspaceContains:.classpath",
+		"workspaceContains:*/.classpath",
+		"onCommand:java.test.editor.run",
+		"onCommand:java.test.editor.debug",
+		"onCommand:java.test.runFromJavaProjectExplorer",
+		"onCommand:java.test.debugFromJavaProjectExplorer"
 	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaTest#readme",
+	"aiKey": "90c182a8-8dab-45d4-bfb8-1353eb55aa7f",
+	"author": {
+		"email": "Land@PlayForm.Cloud",
+		"name": "🌆 — Land —",
+		"url": "HTTPS://Land.PlayForm.Cloud"
+	},
 	"bugs": {
 		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaTest/issues"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandJavaTest.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🌆 — Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"type": "module",
-	"main": "./main.js",
-	"scripts": {
-		"Document": "Document 'Source/**/*.ts'",
-		"build-plugin": "node scripts/buildJdtlsExt.js",
-		"compile": "tsc -p ./",
-		"prepublishOnly": "Build 'Source/**/*.ts'"
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": false
+		},
+		"virtualWorkspaces": false
 	},
 	"contributes": {
 		"commands": [
@@ -477,25 +481,6 @@
 			}
 		]
 	},
-	"activationEvents": [
-		"onLanguage:java",
-		"workspaceContains:pom.xml",
-		"workspaceContains:*/pom.xml",
-		"workspaceContains:build.gradle",
-		"workspaceContains:*/build.gradle",
-		"workspaceContains:settings.gradle",
-		"workspaceContains:*/settings.gradle",
-		"workspaceContains:build.gradle.kts",
-		"workspaceContains:*/build.gradle.kts",
-		"workspaceContains:settings.gradle.kts",
-		"workspaceContains:*/settings.gradle.kts",
-		"workspaceContains:.classpath",
-		"workspaceContains:*/.classpath",
-		"onCommand:java.test.editor.run",
-		"onCommand:java.test.editor.debug",
-		"onCommand:java.test.runFromJavaProjectExplorer",
-		"onCommand:java.test.debugFromJavaProjectExplorer"
-	],
 	"dependencies": {
 		"fs-extra": "11.2.0",
 		"get-port": "7.1.0",
@@ -503,6 +488,7 @@
 		"lodash": "4.17.21",
 		"lru-cache": "10.2.2"
 	},
+	"description": "%description%",
 	"devDependencies": {
 		"@playform/build": "0.0.7",
 		"@playform/document": "0.0.6",
@@ -516,20 +502,34 @@
 		"sinon": "17.0.1",
 		"ts-loader": "9.5.1"
 	},
+	"displayName": "Test Runner for Java",
 	"extensionDependencies": [
 		"redhat.java",
 		"vscjava.vscode-java-debug"
 	],
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandJavaTest#readme",
+	"icon": "resources/logo.png",
+	"keywords": [
+		"land"
+	],
+	"license": "SEE LICENSE IN LICENSE",
+	"main": "./main.js",
+	"name": "vscode-java-test",
+	"preview": false,
+	"private": false,
 	"publishConfig": {
 		"access": "public"
 	},
-	"icon": "resources/logo.png",
-	"preview": false,
-	"aiKey": "90c182a8-8dab-45d4-bfb8-1353eb55aa7f",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": false
-		},
-		"virtualWorkspaces": false
-	}
+	"repository": {
+		"type": "git",
+		"url": "git+HTTPS://github.com/CodeEditorLand/LandJavaTest.git"
+	},
+	"scripts": {
+		"Document": "Document 'Source/**/*.ts'",
+		"build-plugin": "node scripts/buildJdtlsExt.js",
+		"compile": "tsc -p ./",
+		"prepublishOnly": "Build 'Source/**/*.ts'"
+	},
+	"type": "module",
+	"version": "0.0.1"
 }

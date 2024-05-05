@@ -78,7 +78,6 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
                 const markdownTrace: MarkdownString = new MarkdownString();
                 markdownTrace.isTrusted = true;
                 markdownTrace.supportHtml = true;
-
                 for (const line of outputData.attributes.trace.split(/\r?\n/)) {
                     this.processStackTrace(line, markdownTrace, this.currentItem, this.projectName);
                 }

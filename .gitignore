@@ -28,7 +28,6 @@ hs_err_pid*
 **/.idea/
 **/.gradle
 **/node_modules/
-.DS_Store
 target/
 .settings
 test/**/.classpath

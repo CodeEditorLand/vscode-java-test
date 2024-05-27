@@ -28,6 +28,7 @@ hs_err_pid*
 **/.idea/
 **/.gradle
 **/node_modules/
+.DS_Store
 target/
 .settings
 test/**/.classpath
@@ -45,6 +46,7 @@ jdtls/
 !java-extension/.mvn/wrapper/maven-wrapper.jar
 
 out
+node_modules
 *.vsix
 .vscode-test
 resources/templates/css/**

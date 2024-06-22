@@ -1,0 +1,19 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "maven.excludedFolders": [
+        "**/.*",
+        "**/node_modules",
+        "**/target",
+        "**/bin",
+        "**/test/test-projects"
+    ],
+    "java.import.exclusions": [
+        "**/node_modules/**",
+        "**/.metadata/**",
+        "**/archetype-resources/**",
+        "**/META-INF/maven/**",
+        "**/test/test-projects/**"
+    ],
+    "java.checkstyle.version": "8.18",
+    "java.checkstyle.configuration": "${workspaceFolder}/java-extension/build-tools/src/main/resources/checkstyle/checkstyle.xml",
+}

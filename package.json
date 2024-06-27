@@ -475,22 +475,22 @@
 		"onCommand:java.test.debugFromJavaProjectExplorer"
 	],
 	"dependencies": {
-		"fs-extra": "10.1.0",
-		"get-port": "4.2.0",
+		"fs-extra": "11.2.0",
+		"get-port": "7.1.0",
 		"iconv-lite": "0.6.3",
 		"lodash": "4.17.21",
-		"lru-cache": "7.17.0"
+		"lru-cache": "10.2.2"
 	},
 	"devDependencies": {
-		"@types/fs-extra": "9.0.13",
-		"@types/glob": "7.2.0",
-		"@types/lodash": "4.14.191",
+		"@types/fs-extra": "11.0.4",
+		"@types/glob": "8.1.0",
+		"@types/lodash": "4.17.6",
 		"@types/lru-cache": "7.10.10",
-		"@types/node": "16.18.13",
-		"@types/sinon": "10.0.13",
-		"glob": "7.2.3",
-		"sinon": "14.0.2",
-		"ts-loader": "9.4.2"
+		"@types/node": "20.14.9",
+		"@types/sinon": "17.0.3",
+		"glob": "10.4.2",
+		"sinon": "18.0.0",
+		"ts-loader": "9.5.1"
 	},
 	"extensionDependencies": [
 		"redhat.java",

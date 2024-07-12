@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+  <extension point="org.eclipse.jdt.ls.core.delegateCommandHandler">
+    <delegateCommandHandler class="com.microsoft.java.test.plugin.handler.TestDelegateCommandHandler">
+      <command id="vscode.java.test.get.testpath" />
+      <command id="vscode.java.test.junit.argument" />
+      <command id="vscode.java.test.generateTests" />
+      <command id="vscode.java.test.findJavaProjects" />
+      <command id="vscode.java.test.findTestPackagesAndTypes" />
+      <command id="vscode.java.test.findDirectTestChildrenForClass" />
+      <command id="vscode.java.test.findTestTypesAndMethods" />
+      <command id="vscode.java.test.resolvePath" />
+      <command id="vscode.java.test.findTestLocation" />
+      <command id="vscode.java.test.navigateToTestOrTarget" />
+      <command id="vscode.java.test.jacoco.getCoverageDetail" />
+    </delegateCommandHandler>
+  </extension>
+</plugin>

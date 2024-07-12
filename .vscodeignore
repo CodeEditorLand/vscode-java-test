@@ -1,0 +1,27 @@
+.vscode/**
+.vscode-test/**
+out/**
+test/**
+src/**
+**/*.map
+.gitignore
+tsconfig.json
+tslint.json
+package-lock.json
+java-extension/**
+scripts/**
+resources/templates/scss/**
+dist/**/test
+webpack.*.js
+node_modules
+*.log
+demo
+CONTRIBUTING.md
+extension.bundle.ts
+javaConfig.json
+.github/**
+.azure-pipelines/**
+vscode.d.ts
+
+# Ignore output of code sign
+server/*.md

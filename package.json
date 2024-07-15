@@ -1,29 +1,11 @@
 {
-	"activationEvents": [
-		"onLanguage:java",
-		"workspaceContains:pom.xml",
-		"workspaceContains:*/pom.xml",
-		"workspaceContains:build.gradle",
-		"workspaceContains:*/build.gradle",
-		"workspaceContains:settings.gradle",
-		"workspaceContains:*/settings.gradle",
-		"workspaceContains:build.gradle.kts",
-		"workspaceContains:*/build.gradle.kts",
-		"workspaceContains:settings.gradle.kts",
-		"workspaceContains:*/settings.gradle.kts",
-		"workspaceContains:.classpath",
-		"workspaceContains:*/.classpath",
-		"onCommand:java.test.editor.run",
-		"onCommand:java.test.editor.debug",
-		"onCommand:java.test.runFromJavaProjectExplorer",
-		"onCommand:java.test.debugFromJavaProjectExplorer"
-	],
-	"aiKey": "90c182a8-8dab-45d4-bfb8-1353eb55aa7f",
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": false
-		},
-		"virtualWorkspaces": false
+	"name": "vscode-java-test",
+	"displayName": "Test Runner for Java",
+	"description": "%description%",
+	"main": "./main.js",
+	"scripts": {
+		"build-plugin": "node scripts/buildJdtlsExt.js",
+		"compile": "tsc -p ./"
 	},
 	"contributes": {
 		"commands": [
@@ -473,6 +455,25 @@
 			}
 		]
 	},
+	"activationEvents": [
+		"onLanguage:java",
+		"workspaceContains:pom.xml",
+		"workspaceContains:*/pom.xml",
+		"workspaceContains:build.gradle",
+		"workspaceContains:*/build.gradle",
+		"workspaceContains:settings.gradle",
+		"workspaceContains:*/settings.gradle",
+		"workspaceContains:build.gradle.kts",
+		"workspaceContains:*/build.gradle.kts",
+		"workspaceContains:settings.gradle.kts",
+		"workspaceContains:*/settings.gradle.kts",
+		"workspaceContains:.classpath",
+		"workspaceContains:*/.classpath",
+		"onCommand:java.test.editor.run",
+		"onCommand:java.test.editor.debug",
+		"onCommand:java.test.runFromJavaProjectExplorer",
+		"onCommand:java.test.debugFromJavaProjectExplorer"
+	],
 	"dependencies": {
 		"fs-extra": "^10.1.0",
 		"get-port": "^4.2.0",
@@ -480,7 +481,6 @@
 		"lodash": "^4.17.21",
 		"lru-cache": "^7.17.0"
 	},
-	"description": "%description%",
 	"devDependencies": {
 		"@types/fs-extra": "^9.0.13",
 		"@types/glob": "^7.2.0",
@@ -492,17 +492,17 @@
 		"sinon": "^14.0.2",
 		"ts-loader": "^9.4.2"
 	},
-	"displayName": "Test Runner for Java",
 	"extensionDependencies": [
 		"redhat.java",
 		"vscjava.vscode-java-debug"
 	],
 	"icon": "resources/logo.png",
-	"main": "./main.js",
-	"name": "vscode-java-test",
 	"preview": false,
-	"scripts": {
-		"build-plugin": "node scripts/buildJdtlsExt.js",
-		"compile": "tsc -p ./"
+	"aiKey": "90c182a8-8dab-45d4-bfb8-1353eb55aa7f",
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": false
+		},
+		"virtualWorkspaces": false
 	}
 }

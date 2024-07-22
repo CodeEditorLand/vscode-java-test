@@ -383,7 +383,7 @@
 			"./server/org.eclipse.jdt.junit5.runtime_1.1.100.v20220907-0450.jar",
 			"./server/org.opentest4j_1.2.0.jar",
 			"./server/org.jacoco.core_0.8.12.202403310830.jar",
-			"./server/com.microsoft.java.test.plugin-0.41.1.jar"
+			"./server/com.microsoft.java.test.plugin-0.42.0.jar"
 		],
 		"menus": {
 			"commandPalette": [
@@ -475,22 +475,22 @@
 		"onCommand:java.test.debugFromJavaProjectExplorer"
 	],
 	"dependencies": {
-		"fs-extra": "10.1.0",
-		"get-port": "4.2.0",
-		"iconv-lite": "0.6.3",
-		"lodash": "4.17.21",
-		"lru-cache": "7.17.0"
+		"fs-extra": "^10.1.0",
+		"get-port": "^4.2.0",
+		"iconv-lite": "^0.6.3",
+		"lodash": "^4.17.21",
+		"lru-cache": "^7.17.0"
 	},
 	"devDependencies": {
-		"@types/fs-extra": "9.0.13",
-		"@types/glob": "7.2.0",
-		"@types/lodash": "4.14.191",
-		"@types/lru-cache": "7.10.10",
-		"@types/node": "16.18.13",
-		"@types/sinon": "10.0.13",
-		"glob": "7.2.3",
-		"sinon": "14.0.2",
-		"ts-loader": "9.4.2"
+		"@types/fs-extra": "^9.0.13",
+		"@types/glob": "^7.2.0",
+		"@types/lodash": "^4.14.191",
+		"@types/lru-cache": "^7.10.10",
+		"@types/node": "^16.18.13",
+		"@types/sinon": "^10.0.13",
+		"glob": "^7.2.3",
+		"sinon": "^14.0.2",
+		"ts-loader": "^9.4.2"
 	},
 	"extensionDependencies": [
 		"redhat.java",

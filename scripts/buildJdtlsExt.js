@@ -111,15 +111,15 @@ function findNewRequiredJar(fileName) {
 }
 
 function downloadJacocoAgent() {
-	const version = "0.8.11";
-	const jacocoAgentUrl = `https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/${version}/org.jacoco.agent-${version}-runtime.jar`;
-	const jacocoAgentPath = path.resolve("server", "jacocoagent.jar");
-	if (!fs.existsSync(jacocoAgentPath)) {
-		cp.execSync(`curl -L ${jacocoAgentUrl} -o ${jacocoAgentPath}`);
-	}
-	if (!fs.existsSync(jacocoAgentPath)) {
-		throw new Error("Failed to download jacoco agent.");
-	}
+    const version = "0.8.12";
+    const jacocoAgentUrl = `https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/${version}/org.jacoco.agent-${version}-runtime.jar`;
+    const jacocoAgentPath = path.resolve('server', 'jacocoagent.jar');
+    if (!fs.existsSync(jacocoAgentPath)) {
+        cp.execSync(`curl -L ${jacocoAgentUrl} -o ${jacocoAgentPath}`);
+    }
+    if (!fs.existsSync(jacocoAgentPath)) {
+        throw new Error('Failed to download jacoco agent.');
+    }
 }
 
 function isWin() {

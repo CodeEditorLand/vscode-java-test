@@ -1,0 +1,7 @@
+{
+    "recommendations": [
+        "dbaeumer.vscode-eslint",
+        "vscjava.vscode-java-pack",
+        "yaozheng.vscode-pde"
+    ]
+}

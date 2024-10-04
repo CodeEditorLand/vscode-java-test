@@ -1,35 +1,38 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
-import {  ProviderResult, TreeDataProvider, TreeItem, Uri } from 'vscode';
-import { ITestNavigationItem } from './navigationCommands';
+import { ProviderResult, TreeDataProvider, TreeItem, Uri } from "vscode";
 
-export class TestNavigationTreeDataProvider implements TreeDataProvider<ITestNavigationItem> {
-    items: ITestNavigationItem[]
+import { ITestNavigationItem } from "./navigationCommands";
 
-    constructor(items: ITestNavigationItem[]) {
-        this.items = items;
-    }
+export class TestNavigationTreeDataProvider
+	implements TreeDataProvider<ITestNavigationItem>
+{
+	items: ITestNavigationItem[];
 
-    getTreeItem(element: ITestNavigationItem): TreeItem | Thenable<TreeItem> {
-        const treeItem: TreeItem = new TreeItem(element.simpleName);
-        treeItem.resourceUri = Uri.file(element.uri);
-        treeItem.description = element.fullyQualifiedName;
-        treeItem.command = {
-            command: 'vscode.open',
-            title: 'Open Type Location',
-            arguments: [
-                Uri.parse(element.uri)
-            ]
-        }
-        return treeItem;
-    }
+	constructor(items: ITestNavigationItem[]) {
+		this.items = items;
+	}
 
-    getChildren(element?: ITestNavigationItem): ProviderResult<ITestNavigationItem[]> {
-        if (!element) {
-            return this.items;
-        }
+	getTreeItem(element: ITestNavigationItem): TreeItem | Thenable<TreeItem> {
+		const treeItem: TreeItem = new TreeItem(element.simpleName);
+		treeItem.resourceUri = Uri.file(element.uri);
+		treeItem.description = element.fullyQualifiedName;
+		treeItem.command = {
+			command: "vscode.open",
+			title: "Open Type Location",
+			arguments: [Uri.parse(element.uri)],
+		};
+		return treeItem;
+	}
 
-        return undefined;
-    }
+	getChildren(
+		element?: ITestNavigationItem,
+	): ProviderResult<ITestNavigationItem[]> {
+		if (!element) {
+			return this.items;
+		}
+
+		return undefined;
+	}
 }

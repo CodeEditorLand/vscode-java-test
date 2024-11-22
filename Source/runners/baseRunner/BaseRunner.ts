@@ -53,7 +53,9 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 						launchConfiguration.encoding || "utf8",
 					),
 				);
+
 				const index: number = data.lastIndexOf(os.EOL);
+
 				if (index >= 0) {
 					this.runnerResultAnalyzer.analyzeData(
 						data.substring(0, index + os.EOL.length),
@@ -86,6 +88,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 
 		if (token.isCancellationRequested || progressReporter?.isCancelled()) {
 			this.tearDown();
+
 			return;
 		}
 		return await debug
@@ -97,6 +100,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 				async (success: boolean) => {
 					if (!success || token.isCancellationRequested) {
 						this.tearDown();
+
 						return;
 					}
 
@@ -117,6 +121,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 										) {
 											debugSession = undefined;
 											this.tearDown();
+
 											if (data.length > 0) {
 												this.runnerResultAnalyzer.analyzeData(
 													data,
@@ -132,6 +137,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 				},
 				(): any => {
 					this.tearDown();
+
 					return;
 				},
 			);
@@ -172,6 +178,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 
 	protected async startSocketServer(): Promise<void> {
 		this.server = createServer();
+
 		const socketPort: number = await getPort();
 		await new Promise<void>((resolve: () => void): void => {
 			this.server.listen(socketPort, Configurations.LOCAL_HOST, resolve);
@@ -189,6 +196,7 @@ export interface IJUnitLaunchArguments {
 	workingDirectory: string;
 	mainClass: string;
 	projectName: string;
+
 	classpath: string[];
 	modulepath: string[];
 	vmArguments: string[];

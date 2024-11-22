@@ -22,19 +22,23 @@ export async function runTestsFromTestExplorer(
 	isDebug: boolean,
 ): Promise<void> {
 	const pathToRoot: string[] = [];
+
 	do {
 		pathToRoot.push(testItem.id);
 		testItem = testItem.parent!;
 	} while (testItem);
+
 	let currentItem: TestItem | undefined = testController?.items.get(
 		pathToRoot.pop()!,
 	);
+
 	if (!currentItem) {
 		return;
 	}
 	while (pathToRoot.length) {
 		const id: string = pathToRoot.pop()!;
 		currentItem = currentItem.children.get(id);
+
 		if (!currentItem) {
 			return;
 		}

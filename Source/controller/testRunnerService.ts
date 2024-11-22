@@ -20,6 +20,7 @@ class TestRunnerService {
 		runner: TestRunner,
 	) {
 		const key: string = `${name}:${kind}`;
+
 		if (this.registeredRunners.has(key)) {
 			throw new Error(`Runner ${key} has already been registered.`);
 		}
@@ -35,6 +36,7 @@ class TestRunnerService {
 			return undefined;
 		}
 		const key: string = `${name}:${kind}`;
+
 		return this.registeredRunners.get(key);
 	}
 }

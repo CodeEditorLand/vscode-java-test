@@ -30,7 +30,9 @@ export async function loadRunConfig(
 		.get<
 			IExecutionConfig[] | IExecutionConfig
 		>(Configurations.CONFIG_SETTING_KEY, {});
+
 	const configItems: IExecutionConfig[] = [];
+
 	if (!_.isEmpty(configSetting)) {
 		if (_.isArray(configSetting)) {
 			configItems.push(...configSetting);
@@ -42,9 +44,11 @@ export async function loadRunConfig(
 	const defaultConfigName: string | undefined = workspace
 		.getConfiguration(undefined, workspaceFolder.uri)
 		.get<string>(Configurations.DEFAULT_CONFIG_NAME_SETTING_KEY);
+
 	if (defaultConfigName) {
 		if (defaultConfigName === Configurations.BUILTIN_CONFIG_NAME) {
 			sendInfo("", { usingDefaultConfig: 1 });
+
 			return getBuiltinConfig();
 		}
 
@@ -53,15 +57,18 @@ export async function loadRunConfig(
 				return config.name === defaultConfigName;
 			},
 		);
+
 		if (defaultConfigs.length === 0) {
 			window.showWarningMessage(
 				`Failed to find the default configuration item: ${defaultConfigName}, use the empty configuration instead.`,
 			);
+
 			return {};
 		} else if (defaultConfigs.length > 1) {
 			window.showWarningMessage(
 				`More than one configuration item found with name: ${defaultConfigName}, use the empty configuration instead.`,
 			);
+
 			return {};
 		} else {
 			return defaultConfigs[0];
@@ -72,6 +79,7 @@ export async function loadRunConfig(
 		configItems,
 		testItems,
 	);
+
 	return await selectQuickPick(candidateConfigItems, workspaceFolder);
 }
 
@@ -105,6 +113,7 @@ function checkTestItems(
 		const fullName: string | undefined = dataCache.get(testItem)?.fullName;
 
 		context.addContextKey("testItem", fullName);
+
 		return context.evaluate();
 	});
 }
@@ -122,6 +131,7 @@ async function selectQuickPick(
 	}
 
 	const choices: IRunConfigQuickPick[] = [];
+
 	for (let i: number = 0; i < configs.length; i++) {
 		const label: string = configs[i].name
 			? configs[i].name!
@@ -140,6 +150,7 @@ async function selectQuickPick(
 			ignoreFocusOut: true,
 			placeHolder: `Select test configuration for workspace folder: "${workspaceFolder.name}"`,
 		});
+
 	if (!selection) {
 		return undefined;
 	}
@@ -156,10 +167,12 @@ async function askPreferenceForConfig(
 ): Promise<void> {
 	const workspaceConfiguration: WorkspaceConfiguration =
 		workspace.getConfiguration(undefined, workspaceFolderUri);
+
 	const showHint: boolean | undefined =
 		extensionContext.globalState.get<boolean>(
 			Configurations.HINT_FOR_DEFAULT_CONFIG_SETTING_KEY,
 		);
+
 	if (!showHint) {
 		return;
 	}
@@ -169,6 +182,7 @@ async function askPreferenceForConfig(
 		Dialog.NO,
 		Dialog.NEVER_SHOW,
 	);
+
 	if (!choice || choice === Dialog.NO) {
 		return;
 	} else if (choice === Dialog.NEVER_SHOW) {
@@ -176,6 +190,7 @@ async function askPreferenceForConfig(
 			Configurations.HINT_FOR_DEFAULT_CONFIG_SETTING_KEY,
 			false,
 		);
+
 		return;
 	}
 	if (selectedConfig.name) {
@@ -208,6 +223,7 @@ type ApplyOperator = (value1: unknown, value2?: unknown) => boolean;
 
 interface Token {
 	stringValue: string;
+
 	getValue: () => unknown;
 }
 
@@ -242,6 +258,7 @@ export class WhenClauseEvaluationContext {
 		const operatorKeys: string[] = Object.keys(
 			WhenClauseEvaluationContext.OPERATORS,
 		).sort((a: string, b: string) => b.length - a.length);
+
 		const operatorPattern: RegExp = new RegExp(
 			`(${operatorKeys.map(_.escapeRegExp).join("|")})`,
 		);
@@ -260,21 +277,26 @@ export class WhenClauseEvaluationContext {
 	private parse(token: string) {
 		const quotedStringMatch: RegExpMatchArray | null =
 			token.match(/['"](.*)['"]/);
+
 		if (quotedStringMatch) return quotedStringMatch[1];
 
 		const regexMatch: RegExpMatchArray | null = token.match(
 			/\/(?<pattern>.*)\/(?<flags>[ismu]*)/,
 		);
+
 		if (regexMatch?.groups) {
 			const { pattern, flags } = regexMatch.groups;
+
 			return new RegExp(pattern, flags);
 		}
 
 		const number: number = Number(token);
+
 		if (!isNaN(number)) return number;
 
 		const booleanMatch: RegExpMatchArray | null =
 			token.match(/^(?:true|false)$/);
+
 		if (booleanMatch) return booleanMatch[0] === "true";
 
 		if (token === typeof undefined) return;
@@ -299,10 +321,12 @@ export class WhenClauseEvaluationContext {
 			);
 
 			const parenthesesStart: number = stringTokens.lastIndexOf("(");
+
 			const parenthesesEnd: number = (() => {
 				const relativeEnd: number = stringTokens
 					.slice(parenthesesStart)
 					.indexOf(")");
+
 				return relativeEnd >= 0 ? parenthesesStart + relativeEnd : -1;
 			})();
 
@@ -334,6 +358,7 @@ export class WhenClauseEvaluationContext {
 				if (operatorIndex === -1) continue;
 
 				const leftOperand: Token = currentTokens[operatorIndex - 1];
+
 				const rightOperand: Token = currentTokens[operatorIndex + 1];
 
 				const value: boolean =
@@ -346,6 +371,7 @@ export class WhenClauseEvaluationContext {
 
 				const operationStart: number =
 					operatorIndex - (applyOperator.length - 1);
+
 				const operationLength: number = applyOperator.length + 1;
 
 				currentTokens.splice(operationStart, operationLength, {
@@ -366,6 +392,7 @@ export class WhenClauseEvaluationContext {
 
 	evaluate(): boolean {
 		const tokens: Token[] = this.tokenize();
+
 		const result: Token = this.evaluateTokens(tokens);
 
 		return !!result.getValue();

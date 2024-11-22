@@ -20,13 +20,17 @@ export async function runTestsFromJavaProjectExplorer(
 	isDebug: boolean,
 ): Promise<void> {
 	const testLevel: TestLevel = getTestLevel(node._nodeData);
+
 	const isHierarchicalMode: boolean = isHierarchical(node._nodeData);
+
 	const progressReporter: IProgressReporter | undefined =
 		progressProvider?.createProgressReporter(
 			isDebug ? "Debug Test" : "Run Test",
 		);
 	progressReporter?.report("Searching tests...");
+
 	const tests: TestItem[] = [];
+
 	if (testLevel === TestLevel.Class) {
 		tests.push(...(await updateItemForDocument(node._nodeData.uri)));
 	} else if (testLevel === TestLevel.Package) {
@@ -34,20 +38,25 @@ export async function runTestsFromJavaProjectExplorer(
 			await loadJavaProjects();
 		}
 		const projectName: string = node._project.name;
+
 		const projectItem: TestItem | undefined =
 			testController!.items.get(projectName);
+
 		if (!projectItem) {
 			sendError(
 				new Error(
 					"The project name of the node in java project explorer cannot be found in test explorer",
 				),
 			);
+
 			return;
 		}
 		await loadChildren(projectItem);
+
 		const nodeFsPath: string = Uri.parse(node._nodeData.uri).fsPath;
 		projectItem.children.forEach((child: TestItem) => {
 			const itemPath: string = child.uri?.fsPath || "";
+
 			if (
 				isHierarchicalMode ||
 				node._nodeData.kind === 3 /* packageRoot */

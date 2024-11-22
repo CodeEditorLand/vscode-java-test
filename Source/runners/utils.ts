@@ -25,6 +25,7 @@ export async function findTestLocation(
 			JavaTestRunnerCommands.FIND_TEST_LOCATION,
 			fullName,
 		);
+
 	if (location) {
 		return new Location(Uri.parse(location.uri), asRange(location.range)!);
 	}
@@ -42,18 +43,27 @@ export function setTestState(
 	switch (result) {
 		case TestResultState.Errored:
 			testRun.errored(item, message || [], duration);
+
 			break;
+
 		case TestResultState.Failed:
 			testRun.failed(item, message || [], duration);
+
 			break;
+
 		case TestResultState.Passed:
 			testRun.passed(item, duration);
+
 			break;
+
 		case TestResultState.Skipped:
 			testRun.skipped(item);
+
 			break;
+
 		case TestResultState.Running:
 			testRun.started(item);
+
 		default:
 			break;
 	}
@@ -73,17 +83,24 @@ export function processStackTraceLine(
 	projectName: string,
 ): Location | undefined {
 	let testMessageLocation: Location | undefined;
+
 	const traceResults: RegExpExecArray | null =
 		/(\s?at\s+)([\w$\\.]+\/)?((?:[\w$]+\.)+[<\w$>]+)\((.*)\)/.exec(
 			lineOfMessage,
 		);
+
 	if (traceResults) {
 		const fullyQualifiedName: string = traceResults[3];
+
 		const location: string = traceResults[4];
+
 		let sourceName: string | undefined;
+
 		let lineNumLiteral: string | undefined;
+
 		const locationResult: RegExpExecArray | null =
 			/([\w-$]+\.java):(\d+)/.exec(location);
+
 		if (locationResult) {
 			sourceName = locationResult[1];
 			lineNumLiteral = locationResult[2];
@@ -93,16 +110,19 @@ export function processStackTraceLine(
 			traces.appendText(lineOfMessage);
 		} else {
 			const atLiteral: string = traceResults[1];
+
 			const optionalModuleName: string = traceResults[2] || "";
 			traces.appendText(atLiteral);
 			traces.appendMarkdown(
 				`${optionalModuleName + fullyQualifiedName}([${sourceName}:${lineNumLiteral}](command:_java.test.openStackTrace?${encodeURIComponent(JSON.stringify([lineOfMessage, projectName]))}))`,
 			);
+
 			if (
 				currentItem &&
 				path.basename(currentItem.uri?.fsPath || "") === sourceName
 			) {
 				const lineNum: number = parseInt(lineNumLiteral, 10);
+
 				if (currentItem.uri) {
 					if (
 						!currentItem.range ||

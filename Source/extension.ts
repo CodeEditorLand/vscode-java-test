@@ -70,6 +70,7 @@ import {
 } from "./utils/testItemUtils";
 
 export let extensionContext: ExtensionContext;
+
 let componentsRegistered: boolean = false;
 
 export async function activate(context: ExtensionContext): Promise<any> {
@@ -85,6 +86,7 @@ export async function activate(context: ExtensionContext): Promise<any> {
 	});
 	await initExpService(context);
 	await instrumentOperation("activation", doActivate)(context);
+
 	return {
 		registerTestProfile: (
 			name: string,
@@ -102,6 +104,7 @@ export async function deactivate(): Promise<void> {
 	disposeCodeActionProvider();
 	await disposeTelemetryWrapper();
 	testController?.dispose();
+
 	for (const disposable of watchers) {
 		disposable.dispose();
 	}
@@ -113,8 +116,10 @@ async function doActivate(
 ): Promise<void> {
 	const javaLanguageSupport: Extension<any> | undefined =
 		extensions.getExtension(ExtensionName.JAVA_LANGUAGE_SUPPORT);
+
 	if (javaLanguageSupport?.isActive) {
 		const extensionApi: any = javaLanguageSupport.exports;
+
 		if (!extensionApi) {
 			return;
 		}
@@ -166,6 +171,7 @@ async function doActivate(
 	const javaDebugger: Extension<any> | undefined = extensions.getExtension(
 		ExtensionName.JAVA_DEBUGGER,
 	);
+
 	if (javaDebugger?.isActive) {
 		progressProvider = javaDebugger.exports?.progressProvider;
 	}

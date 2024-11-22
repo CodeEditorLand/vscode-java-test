@@ -12,11 +12,15 @@ import { TestNGRunnerResultAnalyzer } from "./TestNGRunnerResultAnalyzer";
 export class TestNGRunner extends BaseRunner {
 	public getRunnerCommandParams(): string[] {
 		const testMethods: TestItem[] = [];
+
 		const queue: TestItem[] = [...this.testContext.testItems];
+
 		while (queue.length) {
 			const item: TestItem = queue.shift()!;
+
 			const testLevel: TestLevel | undefined =
 				dataCache.get(item)?.testLevel;
+
 			if (testLevel === undefined) {
 				continue;
 			}
@@ -35,6 +39,7 @@ export class TestNGRunner extends BaseRunner {
 				.map((method: TestItem) => {
 					// parse to fullName
 					const index: number = method.id.indexOf("@");
+
 					if (index < 0) {
 						return "";
 					}

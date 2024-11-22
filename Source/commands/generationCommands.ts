@@ -16,9 +16,12 @@ export async function generateTests(
 	const edit: WorkspaceEdit = converter.asWorkspaceEdit(
 		await askServerToGenerateTests(uri, cursorOffset),
 	);
+
 	if (edit) {
 		await workspace.applyEdit(edit);
+
 		const entries: [Uri, TextEdit[]][] = edit.entries();
+
 		if (entries?.[0]?.[0]) {
 			await window.showTextDocument(entries[0][0], {
 				preserveFocus: true,

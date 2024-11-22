@@ -37,6 +37,7 @@ export abstract class RunnerResultAnalyzer {
 			currentItem,
 			projectName,
 		);
+
 		if (location) {
 			this.testMessageLocation = location;
 		}

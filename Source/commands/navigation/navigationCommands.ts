@@ -23,8 +23,11 @@ import { IOption } from "../askForOptionCommands";
 import { TestNavigationInput } from "./testNavigationInput";
 
 const GENERATE_TESTS: string = "Generate tests...";
+
 const SEARCH_FILES: string = "Search files...";
+
 const REFERENCES_VIEW_EXTENSION: string = "vscode.references-view";
+
 const DEPRECATED_REFERENCES_VIEW_EXTENSION: string =
 	"ms-vscode.references-view";
 
@@ -33,12 +36,15 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 		return;
 	}
 	const uri: Uri = window.activeTextEditor.document.uri;
+
 	const result: ITestNavigationResult | undefined = await searchTestOrTarget(
 		uri.toString(),
 		gotoTest,
 	);
+
 	if (!result?.items?.length) {
 		const items: string[] = [SEARCH_FILES];
+
 		if (gotoTest) {
 			items.unshift(GENERATE_TESTS);
 		}
@@ -51,6 +57,7 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 					let fileName: string = path.basename(
 						window.activeTextEditor!.document.fileName,
 					);
+
 					if (!gotoTest) {
 						fileName = fileName.replace(/Tests?/g, "");
 					}
@@ -86,14 +93,18 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 				}
 			},
 		);
+
 		const referencesViewExt: Extension<SymbolTree> | undefined =
 			extensions.getExtension<SymbolTree>(REFERENCES_VIEW_EXTENSION) ??
 			extensions.getExtension<SymbolTree>(
 				DEPRECATED_REFERENCES_VIEW_EXTENSION,
 			);
+
 		const api: SymbolTree | undefined = await referencesViewExt?.activate();
+
 		if (api) {
 			const title: string = gotoTest ? "Tests" : "Test Subjects";
+
 			const input: TestNavigationInput = new TestNavigationInput(
 				title,
 				new Location(
@@ -125,6 +136,7 @@ async function fallbackForNavigation(
 			isAdvanced: r.outOfBelongingProject,
 		};
 	});
+
 	const choice: string[] | undefined = await commands.executeCommand(
 		JavaTestRunnerCommands.ADVANCED_ASK_CLIENT_FOR_CHOICE,
 		"Choose a class to open",
@@ -132,6 +144,7 @@ async function fallbackForNavigation(
 		"Classes in other projects",
 		false,
 	);
+
 	if (choice?.length) {
 		window.showTextDocument(Uri.parse(choice[0]));
 	}

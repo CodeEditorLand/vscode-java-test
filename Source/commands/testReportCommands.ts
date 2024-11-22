@@ -20,10 +20,13 @@ export async function openStackTrace(
 		trace,
 		projectName ? [projectName] : [],
 	);
+
 	if (uri) {
 		let lineNumber: number = 0;
+
 		const lineNumberGroup: RegExpExecArray | null =
 			/\((?:[\w-$]+\.java:(\d+))\)/.exec(trace);
+
 		if (lineNumberGroup) {
 			lineNumber = parseInt(lineNumberGroup[1], 10) - 1;
 		}
@@ -37,11 +40,13 @@ export async function openStackTrace(
 	} else {
 		const methodNameGroup: RegExpExecArray | null =
 			/([\w$\.]+\/)?(([\w$]+\.)+[<\w$>]+)\(.*\)/.exec(trace);
+
 		if (methodNameGroup) {
 			const fullyQualifiedName: string = methodNameGroup[2].substring(
 				0,
 				methodNameGroup[2].lastIndexOf("."),
 			);
+
 			const className: string = fullyQualifiedName.substring(
 				fullyQualifiedName.lastIndexOf(".") + 1,
 			);

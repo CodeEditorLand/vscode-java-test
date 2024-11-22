@@ -32,6 +32,7 @@ export class TestCodeActionProvider implements CodeActionProvider {
 		range: Range | Selection,
 	): CodeAction {
 		const offset: number = document.offsetAt(range.start);
+
 		const codeAction: CodeAction = new CodeAction(
 			"Generate Tests...",
 			CodeActionKind.Source.append("generate.tests"),
@@ -44,6 +45,7 @@ export class TestCodeActionProvider implements CodeActionProvider {
 		// This is only to make sure the rank of the code actions will not jitter
 		// See: https://github.com/microsoft/vscode/issues/62267
 		codeAction.isPreferred = true;
+
 		return codeAction;
 	}
 }
@@ -60,6 +62,7 @@ export async function registerTestCodeActionProvider(): Promise<Disposable> {
 			],
 		},
 	);
+
 	return provider;
 }
 

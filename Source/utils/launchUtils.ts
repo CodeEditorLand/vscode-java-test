@@ -67,6 +67,7 @@ export async function resolveLaunchConfigurationForRunner(runner: BaseRunner, te
 
     if (testContext.profile?.kind === TestRunProfileKind.Coverage) {
         let agentArg: string = `-javaagent:${getJacocoAgentPath(debugConfiguration)}=destfile=${getJacocoDataFilePath(launchArguments.projectName)}`;
+
         if (config?.coverage?.appendResult === false) {
             agentArg += ',append=false';
         }
@@ -81,9 +82,11 @@ export async function resolveLaunchConfigurationForRunner(runner: BaseRunner, te
 
 async function getLaunchArguments(testContext: IRunTestContext): Promise<IJUnitLaunchArguments> {
     const testLevel: TestLevel | undefined = dataCache.get(testContext.testItems[0])?.testLevel;
+
     if (testLevel === undefined) {
         const error: Error = new Error('Failed to get the required metadata to run');
         sendError(error);
+
         throw error;
     }
 
@@ -136,6 +139,7 @@ async function resolveJUnitLaunchArguments(projectName: string, testLevel: TestL
     if (!argument?.body || argument.errorMessage) {
         const error: Error = new Error(argument?.errorMessage || 'Failed to parse the JUnit launch arguments');
         sendError(error);
+
         throw error;
     }
 
@@ -147,6 +151,7 @@ async function resolveJUnitLaunchArguments(projectName: string, testLevel: TestL
  */
 function parseTags(config: IExecutionConfig | undefined): string[] {
     const tags: string[] = [];
+
     if (config?.testKind !== 'junit') {
         return tags;
     }
@@ -154,7 +159,9 @@ function parseTags(config: IExecutionConfig | undefined): string[] {
     if (config?.filters?.tags) {
         for (let tag of config.filters.tags) {
             tag = tag.trim();
+
             const isExcluded: boolean = tag.startsWith('!');
+
             if (isExcluded) {
                 tag = tag.slice(1);
             }

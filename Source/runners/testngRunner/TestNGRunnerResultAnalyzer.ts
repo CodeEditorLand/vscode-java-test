@@ -13,7 +13,9 @@ import { RunnerResultAnalyzer } from "../baseRunner/RunnerResultAnalyzer";
 import { setTestState } from "../utils";
 
 const TEST_START: string = "testStarted";
+
 const TEST_FAIL: string = "testFailed";
+
 const TEST_FINISH: string = "testFinished";
 
 export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
@@ -27,11 +29,15 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	constructor(protected testContext: IRunTestContext) {
 		super(testContext);
 		this.projectName = testContext.projectName;
+
 		const queue: TestItem[] = [...testContext.testItems];
+
 		while (queue.length) {
 			const item: TestItem = queue.shift()!;
+
 			const testLevel: TestLevel | undefined =
 				dataCache.get(item)?.testLevel;
+
 			if (testLevel === undefined) {
 				continue;
 			}
@@ -69,9 +75,12 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		);
 
 		const id: string = `${this.projectName}@${outputData.attributes.name}`;
+
 		if (outputData.name === TEST_START) {
 			this.initializeCache();
+
 			const item: TestItem | undefined = this.getTestItem(id);
+
 			if (!item) {
 				return;
 			}
@@ -79,16 +88,19 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			this.testContext.testRun.started(item);
 		} else if (outputData.name === TEST_FAIL) {
 			const item: TestItem | undefined = this.getTestItem(id);
+
 			if (!item) {
 				return;
 			}
 			this.currentTestState = TestResultState.Failed;
+
 			const testMessages: TestMessage[] = [];
 
 			if (outputData.attributes.trace) {
 				const markdownTrace: MarkdownString = new MarkdownString();
 				markdownTrace.isTrusted = true;
 				markdownTrace.supportHtml = true;
+
 				for (const line of outputData.attributes.trace.split(/\r?\n/)) {
 					this.processStackTrace(
 						line,
@@ -99,6 +111,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 				}
 
 				const testMessage: TestMessage = new TestMessage(markdownTrace);
+
 				if (this.testMessageLocation) {
 					testMessage.location = this.testMessageLocation;
 					this.testMessageLocation = undefined;
@@ -111,6 +124,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 				outputData.attributes.duration,
 				10,
 			);
+
 			setTestState(
 				this.testContext.testRun,
 				item,
@@ -120,6 +134,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			);
 		} else if (outputData.name === TEST_FINISH) {
 			const item: TestItem | undefined = this.getTestItem(data);
+
 			if (!item) {
 				return;
 			}
@@ -130,6 +145,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 				outputData.attributes.duration,
 				10,
 			);
+
 			setTestState(
 				this.testContext.testRun,
 				item,
@@ -146,6 +162,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		}
 
 		this.currentItem = this.triggeredTestsMapping.get(testId);
+
 		return this.currentItem;
 	}
 

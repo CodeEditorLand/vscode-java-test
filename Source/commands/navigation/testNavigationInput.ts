@@ -28,10 +28,12 @@ export class TestNavigationInput
 	resolve(): ProviderResult<SymbolTreeModel<ITestNavigationItem>> {
 		const provider: TestNavigationTreeDataProvider =
 			new TestNavigationTreeDataProvider(this.items);
+
 		const treeModel: SymbolTreeModel<ITestNavigationItem> = {
 			message: undefined,
 			provider,
 		};
+
 		return treeModel;
 	}
 

@@ -19,7 +19,9 @@ export class JUnitRunner extends BaseRunner {
 			// We need to replace the socket port number since the socket is established from the client side.
 			// The port number returned from the server side is a fake one.
 			const args: string[] = launchConfiguration.args as string[];
+
 			const portIndex: number = args.lastIndexOf("-port");
+
 			if (portIndex > -1 && portIndex + 1 < args.length) {
 				args[portIndex + 1] =
 					`${(this.server.address() as AddressInfo).port}`;

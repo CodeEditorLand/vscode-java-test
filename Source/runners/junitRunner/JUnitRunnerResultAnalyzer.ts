@@ -36,11 +36,15 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	constructor(protected testContext: IRunTestContext) {
 		super(testContext);
 		this.projectName = testContext.projectName;
+
 		const queue: TestItem[] = [...testContext.testItems];
+
 		while (queue.length) {
 			const item: TestItem = queue.shift()!;
+
 			const testLevel: TestLevel | undefined =
 				dataCache.get(item)?.testLevel;
+
 			if (testLevel === undefined || testLevel === TestLevel.Invocation) {
 				continue;
 			} else if (testLevel === TestLevel.Method && item.parent) {
@@ -56,6 +60,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 	public analyzeData(data: string): void {
 		const lines: string[] = data.split(/\r?\n/);
+
 		for (const line of lines) {
 			this.processData(line);
 			this.testContext.testRun.appendOutput(line + "\r\n");
@@ -71,11 +76,13 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			const item: TestItem | undefined = this.getTestItem(
 				data.substr(MessageId.TestStart.length),
 			);
+
 			if (!item) {
 				return;
 			}
 			this.setCurrentState(item, TestResultState.Running, 0);
 			this.setDurationAtStart(this.getCurrentState(item));
+
 			setTestState(
 				this.testContext.testRun,
 				item,
@@ -85,12 +92,14 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			const item: TestItem | undefined = this.getTestItem(
 				data.substr(MessageId.TestEnd.length),
 			);
+
 			if (!item) {
 				return;
 			}
 			const currentState: CurrentItemState = this.getCurrentState(item);
 			this.calcDurationAtEnd(currentState);
 			this.determineResultStateAtEnd(data, currentState);
+
 			setTestState(
 				this.testContext.testRun,
 				item,
@@ -102,6 +111,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			const item: TestItem | undefined = this.getTestItem(
 				data.substr(MessageId.TestFailed.length),
 			);
+
 			if (!item) {
 				return;
 			}
@@ -112,6 +122,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			let item: TestItem | undefined = this.getTestItem(
 				data.substr(MessageId.TestError.length),
 			);
+
 			if (!item) {
 				if (this.testContext.testItems.length === 1) {
 					item = this.testContext.testItems[0];
@@ -121,6 +132,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 				}
 			}
 			this.getCurrentState(item).resultState = TestResultState.Errored;
+
 			if (item.id !== this.tracingItem?.id) {
 				this.initializeTracingItemProcessingCache(item);
 			}
@@ -136,6 +148,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			const currentResultState: TestResultState = this.getCurrentState(
 				this.tracingItem,
 			).resultState;
+
 			if (this.assertionFailure) {
 				this.tryAppendMessage(
 					this.tracingItem,
@@ -168,6 +181,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		} else if (data.startsWith(MessageId.ActualEnd)) {
 			this.recordingType = RecordingType.None;
 			this.actualString = this.actualString.replace(/\n$/, "");
+
 			if (
 				!this.assertionFailure &&
 				this.expectString &&
@@ -187,8 +201,10 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!this.assertionFailure) {
 				const assertionRegExp: RegExp =
 					/expected.*:.*<(.+?)>.*but.*:.*<(.+?)>/im;
+
 				const assertionResults: RegExpExecArray | null =
 					assertionRegExp.exec(data);
+
 				if (assertionResults && assertionResults.length === 3) {
 					this.assertionFailure = TestMessage.diff(
 						`Expected [${assertionResults[1]}] but was [${assertionResults[2]}]`,
@@ -223,6 +239,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	): void {
 		const isIgnore: boolean =
 			data.indexOf(MessageId.IGNORE_TEST_PREFIX) > -1;
+
 		if (isIgnore) {
 			currentState.resultState = TestResultState.Skipped;
 		} else if (currentState.resultState === TestResultState.Running) {
@@ -232,6 +249,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 	private setDurationAtStart(currentState: CurrentItemState): void {
 		const start: number = Date.now();
+
 		if (currentState.duration === 0) {
 			currentState.duration = -start;
 		} else if (currentState.duration > 0) {
@@ -249,6 +267,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 	protected getTestItem(message: string): TestItem | undefined {
 		const index: string = message.substring(0, message.indexOf(",")).trim();
+
 		return this.testOutputMapping.get(index)?.testItem;
 	}
 
@@ -270,7 +289,9 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		const parts: string[] = message.split("/");
 
 		let className: string = "";
+
 		let methodName: string = "";
+
 		let InvocationSuffix: string = "";
 
 		if (!parts || parts.length === 0) {
@@ -300,6 +321,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 				const nestedClassName: string = part.substring(
 					JUnitTestPart.NESTED_CLASS.length,
 				);
+
 				className = `${className}$${nestedClassName}`;
 			} else if (part.startsWith(JUnitTestPart.TEST_TEMPLATE)) {
 				const rawMethodName: string = part
@@ -341,13 +363,16 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		 */
 		const regexp: RegExp =
 			/(?:@AssumptionFailure: |@Ignore: )?(.*?)\(([^)]*)\)[^(]*$/;
+
 		const matchResults: RegExpExecArray | null = regexp.exec(message);
+
 		if (matchResults && matchResults.length === 3) {
 			return `${this.projectName}@${matchResults[2]}#${matchResults[1]}`;
 		}
 
 		// In case the output is class level, i.e.: `%ERROR 2,a.class.FullyQualifiedName`
 		const indexOfSpliter: number = message.lastIndexOf(",");
+
 		if (indexOfSpliter > -1) {
 			return `${this.projectName}@${message.slice(indexOfSpliter + 1)}`;
 		}
@@ -369,6 +394,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			.replace(/ /g, "");
 
 		const params: string[] = rawParamsString.split(",");
+
 		let paramString: string = "";
 		params.forEach((param: string) => {
 			paramString += `${param.substring(param.lastIndexOf(".") + 1)}, `;
@@ -379,6 +405,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		}
 
 		const methodName: string = rawName.substring(0, rawName.indexOf("("));
+
 		return `${methodName}(${paramString})`;
 	}
 
@@ -393,6 +420,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	private getCurrentState(testItem: TestItem): CurrentItemState {
 		if (!this.currentStates.has(testItem))
 			this.setCurrentState(testItem, TestResultState.Running, 0);
+
 		return this.currentStates.get(testItem)!;
 	}
 
@@ -427,27 +455,39 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		const regExp: RegExp = /([^\\,]|\\\,?)+/gm;
 		// See MessageId.TestTree's comment for its format
 		const result: RegExpMatchArray | null = message.match(regExp);
+
 		if (result && result.length > 6) {
 			const index: string = result[0];
+
 			const testId: string = this.getTestId(result[result.length - 1]);
+
 			const isSuite: boolean = result[2] === "true";
+
 			const testCount: number = parseInt(result[3], 10);
+
 			const isDynamic: boolean = result[4] === "true";
+
 			const parentIndex: string = result[5];
+
 			const displayName: string = result[6].replace(/\\,/g, ",");
+
 			const uniqueId: string | undefined =
 				this.testContext.kind === TestKind.JUnit5
 					? result[8]?.replace(/\\,/g, ",")
 					: undefined;
 
 			let testItem: TestItem | undefined;
+
 			if (isDynamic) {
 				const parentInfo: ITestInfo | undefined =
 					this.testOutputMapping.get(parentIndex);
+
 				const parent: TestItem | undefined = parentInfo?.testItem;
+
 				if (parent) {
 					const parentData: ITestItemData | undefined =
 						dataCache.get(parent);
+
 					if (
 						parentData?.testLevel === TestLevel.Method ||
 						parentData?.testLevel === TestLevel.Invocation
@@ -467,9 +507,11 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 				if (this.incompleteTestSuite.length) {
 					const suiteIdx: number =
 						this.incompleteTestSuite.length - 1;
+
 					const parentSuite: ITestInfo =
 						this.incompleteTestSuite[suiteIdx];
 					parentSuite.testCount--;
+
 					if (parentSuite.testCount <= 0) {
 						this.incompleteTestSuite.pop();
 					}
@@ -559,10 +601,12 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			testMessage.location = new Location(item.uri, item.range);
 		} else {
 			let id: string = item.id;
+
 			if (this.testContext.kind === TestKind.JUnit) {
 				// change test[0] -> test
 				// to fix: https://github.com/microsoft/vscode-java-test/issues/1296
 				const indexOfParameterizedTest: number = id.lastIndexOf("[");
+
 				if (indexOfParameterizedTest > -1) {
 					id = id.substring(0, id.lastIndexOf("["));
 				}
@@ -576,6 +620,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	// See: org.eclipse.jdt.internal.junit.model.TestCaseElement#getTestMethodName()
 	private getTestMethodName(testName: string): string {
 		const index: number = testName.lastIndexOf("(");
+
 		if (index > 0) {
 			return testName.substring(0, index);
 		}
@@ -592,6 +637,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 		const result: RegExpMatchArray | null =
 			name.match(/(?:\$\(.+\) )?(.*)/);
+
 		if (result?.length === 2) {
 			return result[1];
 		}

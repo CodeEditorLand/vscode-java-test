@@ -129,10 +129,12 @@ export const loadChildren: (item: TestItem, token?: CancellationToken) => any =
 		) => {
 			if (!item) {
 				await loadJavaProjects();
+
 				return;
 			}
 
 			const data: ITestItemData | undefined = dataCache.get(item);
+
 			if (!data) {
 				return;
 			}
@@ -149,6 +151,7 @@ export const loadChildren: (item: TestItem, token?: CancellationToken) => any =
 							"The class node does not have jdt handler id.",
 						),
 					);
+
 					return;
 				}
 				const testMethods: IJavaTestItem[] =
@@ -173,6 +176,7 @@ async function startWatchingWorkspace(): Promise<void> {
 	for (const workspaceFolder of workspace.workspaceFolders) {
 		const patterns: RelativePattern[] =
 			await testSourceProvider.getTestSourcePattern(workspaceFolder);
+
 		for (const pattern of patterns) {
 			const watcher: FileSystemWatcher =
 				workspace.createFileSystemWatcher(pattern);
@@ -181,6 +185,7 @@ async function startWatchingWorkspace(): Promise<void> {
 				watcher.onDidCreate(async (uri: Uri) => {
 					const testTypes: IJavaTestItem[] =
 						await findTestTypesAndMethods(uri.toString());
+
 					if (testTypes.length === 0) {
 						return;
 					}
@@ -193,28 +198,33 @@ async function startWatchingWorkspace(): Promise<void> {
 					const pathsData: IJavaTestItem[] = await resolvePath(
 						uri.toString(),
 					);
+
 					if (_.isEmpty(pathsData) || pathsData.length < 2) {
 						return;
 					}
 
 					const projectData: IJavaTestItem = pathsData[0];
+
 					if (projectData.testLevel !== TestLevel.Project) {
 						return;
 					}
 
 					const belongingProject: TestItem | undefined =
 						testController?.items.get(projectData.id);
+
 					if (!belongingProject) {
 						return;
 					}
 
 					const packageData: IJavaTestItem = pathsData[1];
+
 					if (packageData.testLevel !== TestLevel.Package) {
 						return;
 					}
 
 					const belongingPackage: TestItem | undefined =
 						belongingProject.children.get(packageData.id);
+
 					if (!belongingPackage) {
 						return;
 					}
@@ -268,32 +278,40 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 						);
 					option.token?.onCancellationRequested(() => {
 						option.progressReporter?.done();
+
 						return resolve([]);
 					});
+
 					const progressToken: CancellationToken | undefined =
 						option.progressReporter?.getCancellationToken();
 					option.onProgressCancelHandler =
 						progressToken?.onCancellationRequested(() => {
 							option.progressReporter?.done();
+
 							return resolve([]);
 						});
 					option.progressReporter?.report("Searching tests...");
+
 					const result: TestItem[] = await getIncludedItems(
 						request,
 						progressToken,
 					);
 					await expandTests(result, TestLevel.Method, progressToken);
+
 					return resolve(result);
 				},
 			);
 
 			if (testItems.length === 0) {
 				option.progressReporter?.done();
+
 				return;
 			}
 
 			const run: TestRun = testController!.createTestRun(request);
+
 			let coverageProvider: JavaTestCoverageProvider | undefined;
+
 			if (request.profile?.kind === TestRunProfileKind.Coverage) {
 				coverageProvider = new JavaTestCoverageProvider();
 				request.profile.loadDetailedCoverage = (
@@ -312,22 +330,26 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 					async (resolve: () => void): Promise<void> => {
 						const token: CancellationToken =
 							option.token ?? run.token;
+
 						let disposables: Disposable[] = [];
 						token.onCancellationRequested(() => {
 							option.progressReporter?.done();
 							run.end();
 							disposables.forEach((d: Disposable) => d.dispose());
+
 							return resolve();
 						});
 						enqueueTestMethods(testItems, run);
 						// TODO: first group by project, then merge test methods.
 						const queue: TestItem[][] = mergeTestMethods(testItems);
+
 						for (const testsInQueue of queue) {
 							if (testsInQueue.length === 0) {
 								continue;
 							}
 							const testProjectMapping: Map<string, TestItem[]> =
 								mapTestItemsByProject(testsInQueue);
+
 							for (const [
 								projectName,
 								itemsPerProject,
@@ -337,10 +359,12 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 									| undefined = workspace.getWorkspaceFolder(
 									itemsPerProject[0].uri!,
 								);
+
 								if (!workspaceFolder) {
 									window.showErrorMessage(
 										`Failed to get workspace folder from test item: ${itemsPerProject[0].label}.`,
 									);
+
 									continue;
 								}
 								const testContext: IRunTestContext = {
@@ -356,11 +380,13 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 										workspaceFolder,
 									),
 								};
+
 								const testRunner: TestRunner | undefined =
 									testRunnerService.getRunner(
 										request.profile?.label,
 										request.profile?.kind,
 									);
+
 								if (testRunner) {
 									await executeWithTestRunner(
 										option,
@@ -373,18 +399,21 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 										d.dispose(),
 									);
 									disposables = [];
+
 									continue;
 								}
 								const testKindMapping: Map<
 									TestKind,
 									TestItem[]
 								> = mapTestItemsByKind(itemsPerProject);
+
 								for (const [
 									kind,
 									items,
 								] of testKindMapping.entries()) {
 									testContext.kind = kind;
 									testContext.testItems = items;
+
 									if (
 										option.progressReporter?.isCancelled()
 									) {
@@ -406,24 +435,29 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 												return;
 											}
 											option.progressReporter?.done();
+
 											return resolve();
 										});
 									option.progressReporter?.report(
 										"Resolving launch configuration...",
 									);
+
 									if (!testContext.testConfig) {
 										continue;
 									}
 									const runner: BaseRunner | undefined =
 										getRunnerByContext(testContext);
+
 									if (!runner) {
 										window.showErrorMessage(
 											`Failed to get suitable runner for the test kind: ${testContext.kind}.`,
 										);
+
 										continue;
 									}
 									try {
 										await runner.setup();
+
 										const resolvedConfiguration: DebugConfiguration =
 											mergeConfigurations(
 												option.launchConfiguration,
@@ -492,22 +526,29 @@ async function executeWithTestRunner(
 					const parts: TestIdParts = parsePartsFromTestId(
 						event.testId,
 					);
+
 					let parentItem: TestItem;
+
 					try {
 						parentItem = findTestClass(parts);
 					} catch (e) {
 						sendError(e);
 						window.showErrorMessage(e.message);
+
 						return resolve();
 					}
 					let currentItem: TestItem | undefined;
+
 					const invocations: string[] | undefined = parts.invocations;
+
 					if (invocations?.length) {
 						let i: number = 0;
+
 						for (; i < invocations.length; i++) {
 							currentItem = parentItem.children.get(
 								`${parentItem.id}#${invocations[i]}`,
 							);
+
 							if (!currentItem) {
 								break;
 							}
@@ -521,6 +562,7 @@ async function executeWithTestRunner(
 							sendError(
 								new Error("Test not found:" + event.testId),
 							);
+
 							return resolve();
 						}
 
@@ -557,23 +599,31 @@ async function executeWithTestRunner(
 					switch (event.state) {
 						case TestResultState.Running:
 							run.started(currentItem);
+
 							break;
+
 						case TestResultState.Passed:
 							run.passed(currentItem);
+
 							break;
+
 						case TestResultState.Failed:
 						case TestResultState.Errored:
 							const testMessages: TestMessage[] = [];
+
 							if (event.message) {
 								const markdownTrace: MarkdownString =
 									new MarkdownString();
 								markdownTrace.supportHtml = true;
 								markdownTrace.isTrusted = true;
+
 								const testMessage: TestMessage =
 									new TestMessage(markdownTrace);
 								testMessages.push(testMessage);
+
 								const lines: string[] =
 									event.message.split(/\r?\n/);
+
 								for (const line of lines) {
 									const location: Location | undefined =
 										processStackTraceLine(
@@ -582,16 +632,21 @@ async function executeWithTestRunner(
 											currentItem,
 											testContext.projectName,
 										);
+
 									if (location) {
 										testMessage.location = location;
 									}
 								}
 							}
 							run.failed(currentItem, testMessages);
+
 							break;
+
 						case TestResultState.Skipped:
 							run.skipped(currentItem);
+
 							break;
+
 						default:
 							break;
 					}
@@ -618,6 +673,7 @@ async function executeWithTestRunner(
 		const projectItem: TestItem | undefined = testController?.items.get(
 			parts.project,
 		);
+
 		if (!projectItem) {
 			throw new Error("Failed to get the project test item.");
 		}
@@ -630,6 +686,7 @@ async function executeWithTestRunner(
 		const packageItem: TestItem | undefined = projectItem.children.get(
 			`${projectItem.id}@${parts.package}`,
 		);
+
 		if (!packageItem) {
 			throw new Error("Failed to get the package test item.");
 		}
@@ -642,11 +699,13 @@ async function executeWithTestRunner(
 		let current: TestItem | undefined = packageItem.children.get(
 			`${projectItem.id}@${classes[0]}`,
 		);
+
 		if (!current) {
 			throw new Error("Failed to get the class test item.");
 		}
 		for (let i: number = 1; i < classes.length; i++) {
 			current = current.children.get(`${current.id}$${classes[i]}`);
+
 			if (!current) {
 				throw new Error("Failed to get the class test item.");
 			}
@@ -664,6 +723,7 @@ function mergeConfigurations(
 	}
 
 	const entryKeys: string[] = Object.keys(config);
+
 	for (const configKey of entryKeys) {
 		// for now we merge launcher properties which doesn't have a value.
 		if (!launchConfiguration[configKey]) {
@@ -678,6 +738,7 @@ function mergeConfigurations(
  */
 function enqueueTestMethods(testItems: TestItem[], run: TestRun): void {
 	const queuedTests: TestItem[] = [...testItems];
+
 	while (queuedTests.length) {
 		const queuedTest: TestItem = queuedTests.shift()!;
 		run.enqueued(queuedTest);
@@ -697,6 +758,7 @@ async function getIncludedItems(
 	token?: CancellationToken,
 ): Promise<TestItem[]> {
 	let testItems: TestItem[] = [];
+
 	if (request.include) {
 		testItems.push(...request.include);
 	} else {
@@ -716,6 +778,7 @@ async function getIncludedItems(
 		token,
 	);
 	testItems = _.differenceBy(testItems, excludingItems, "id");
+
 	return testItems;
 }
 
@@ -739,12 +802,14 @@ export function handleInvocations(testItems: TestItem[]): TestItem[] {
 			"Trying to re-run a single test invocation, but could not find a corresponding method-level parent item with data.";
 		sendError(new Error(errMsg));
 		window.showErrorMessage(errMsg);
+
 		return [];
 	}
 
 	testItems = mergeInvocations(testItems);
 
 	const invocations: TestItem[] = filterInvocations(testItems);
+
 	if (
 		invocations.length >
 		_.uniq(invocations.map((item: TestItem) => item.parent)).length
@@ -752,12 +817,14 @@ export function handleInvocations(testItems: TestItem[]): TestItem[] {
 		window.showErrorMessage(
 			"Re-running multiple invocations of a parameterized test is not supported, please select only one invocation at a time.",
 		);
+
 		return [];
 	}
 
 	// always remove uniqueIds from all non-invocation items, since they would have been set for a past run
 	testItems.forEach((item: TestItem) => {
 		const itemData: ITestItemData | undefined = dataCache.get(item);
+
 		if (itemData && itemData.testLevel !== TestLevel.Invocation) {
 			itemData.uniqueId = undefined;
 		}
@@ -769,12 +836,14 @@ export function handleInvocations(testItems: TestItem[]): TestItem[] {
 		if (isInvocation(item)) {
 			dataCache.get(item.parent!)!.uniqueId =
 				dataCache.get(item)!.uniqueId;
+
 			return item.parent!;
 		}
 		return item;
 	});
 
 	removeNonRerunTestInvocations(testItems);
+
 	return testItems;
 }
 
@@ -809,6 +878,7 @@ function mergeInvocations(testItems: TestItem[]): TestItem[] {
 				),
 			new Map(),
 		);
+
 	const invocationsToMerge: TestItem[] = _.flatten(
 		[...invocationsPerMethod.entries()]
 			.filter(([method, invs]) => method.children.size === invs.size)
@@ -828,6 +898,7 @@ function isAncestorIncluded(
 ): boolean {
 	// walk up the tree and check whether any ancestor is part of the selected test items
 	let parent: TestItem | undefined = item.parent;
+
 	while (parent !== undefined) {
 		if (potentialAncestors.includes(parent)) {
 			return true;
@@ -848,10 +919,14 @@ async function expandTests(
 	token?: CancellationToken,
 ): Promise<TestItem[]> {
 	const results: Set<TestItem> = new Set();
+
 	const queue: TestItem[] = [...testItems];
+
 	while (queue.length) {
 		const item: TestItem = queue.shift()!;
+
 		const testLevel: TestLevel | undefined = dataCache.get(item)?.testLevel;
+
 		if (testLevel === undefined) {
 			continue;
 		}
@@ -874,14 +949,18 @@ function removeNonRerunTestInvocations(testItems: TestItem[]): void {
 	const rerunMethods: TestItem[] = testItems.filter(
 		(item: TestItem) => dataCache.get(item)?.uniqueId !== undefined,
 	);
+
 	const queue: TestItem[] = [...testItems];
+
 	while (queue.length) {
 		const item: TestItem = queue.shift()!;
+
 		if (rerunMethods.includes(item)) {
 			continue;
 		}
 		if (dataCache.get(item)?.testLevel === TestLevel.Invocation) {
 			item.parent?.children.delete(item.id);
+
 			continue;
 		}
 		item.children.forEach((child: TestItem) => {
@@ -902,6 +981,7 @@ function mergeTestMethods(testItems: TestItem[]): TestItem[][] {
 	// eslint-disable-next-line @typescript-eslint/typedef
 	const classMapping: Map<string, TestItem> = testItems.reduce((map, i) => {
 		const testLevel: TestLevel | undefined = dataCache.get(i)?.testLevel;
+
 		if (testLevel === undefined) {
 			return map;
 		}
@@ -916,6 +996,7 @@ function mergeTestMethods(testItems: TestItem[]): TestItem[][] {
 		(map, i) => {
 			const testLevel: TestLevel | undefined =
 				dataCache.get(i)?.testLevel;
+
 			if (testLevel === undefined) {
 				return map;
 			}
@@ -929,6 +1010,7 @@ function mergeTestMethods(testItems: TestItem[]): TestItem[][] {
 			}
 
 			const value: Set<TestItem> | undefined = map.get(i.parent);
+
 			if (value) {
 				value.add(i as TestItem);
 			} else {
@@ -963,14 +1045,18 @@ function mergeTestMethods(testItems: TestItem[]): TestItem[][] {
 
 function mapTestItemsByProject(items: TestItem[]): Map<string, TestItem[]> {
 	const map: Map<string, TestItem[]> = new Map<string, TestItem[]>();
+
 	for (const item of items) {
 		const projectName: string | undefined =
 			dataCache.get(item)?.projectName;
+
 		if (!projectName) {
 			sendError(new Error("Item does not have project name."));
+
 			continue;
 		}
 		const itemsPerProject: TestItem[] | undefined = map.get(projectName);
+
 		if (itemsPerProject) {
 			itemsPerProject.push(item);
 		} else {
@@ -982,12 +1068,15 @@ function mapTestItemsByProject(items: TestItem[]): Map<string, TestItem[]> {
 
 function mapTestItemsByKind(items: TestItem[]): Map<TestKind, TestItem[]> {
 	const map: Map<TestKind, TestItem[]> = new Map<TestKind, TestItem[]>();
+
 	for (const item of items) {
 		const testKind: TestKind | undefined = dataCache.get(item)?.testKind;
+
 		if (testKind === undefined) {
 			continue;
 		}
 		const itemsPerKind: TestItem[] | undefined = map.get(testKind);
+
 		if (itemsPerKind) {
 			itemsPerKind.push(item);
 		} else {
@@ -1004,8 +1093,10 @@ function getRunnerByContext(
 		case TestKind.JUnit:
 		case TestKind.JUnit5:
 			return new JUnitRunner(testContext);
+
 		case TestKind.TestNG:
 			return new TestNGRunner(testContext);
+
 		default:
 			return undefined;
 	}
@@ -1017,26 +1108,37 @@ function trackTestFrameworkVersion(
 	modulepaths: string[],
 ) {
 	let artifactPattern: RegExp;
+
 	switch (testKind) {
 		case TestKind.JUnit:
 			artifactPattern = /junit-(\d+\.\d+\.\d+(-[a-zA-Z\d]+)?).jar/;
+
 			break;
+
 		case TestKind.JUnit5:
 			artifactPattern =
 				/junit-jupiter-api-(\d+\.\d+\.\d+(-[a-zA-Z\d]+)?).jar/;
+
 			break;
+
 		case TestKind.TestNG:
 			artifactPattern = /testng-(\d+\.\d+\.\d+(-[a-zA-Z\d]+)?).jar/;
+
 			break;
+
 		default:
 			return;
 	}
 	let version: string = "unknown";
+
 	for (const entry of [...classpaths, ...modulepaths]) {
 		const fileName: string = path.basename(entry);
+
 		const match: RegExpMatchArray | null = artifactPattern.exec(fileName);
+
 		if (match) {
 			version = match[1];
+
 			break;
 		}
 	}
@@ -1052,6 +1154,7 @@ function getLabelWithoutCodicon(name: string): string {
 	}
 
 	const result: RegExpMatchArray | null = name.match(/(?:\$\(.+\) )?(.*)/);
+
 	if (result?.length === 2) {
 		return result[1];
 	}

@@ -19,6 +19,7 @@ export async function executeJavaLanguageServerCommand<T>(
 			return;
 		}
 		sendError(error);
+
 		throw error;
 	}
 }

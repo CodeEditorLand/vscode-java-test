@@ -56,7 +56,9 @@ export async function registerAdvanceAskForChoice(
 				canPickMany: boolean,
 			) => {
 				let result: string[] | undefined;
+
 				const disposables: Disposable[] = [];
+
 				try {
 					result = await new Promise<string[] | undefined>(
 						(resolve: (value: string[] | undefined) => void) => {
@@ -178,6 +180,7 @@ export async function registerAskForInputCommand(
 					prompt,
 					validateInput: checkJavaQualifiedName,
 				});
+
 				return ans;
 			},
 		),

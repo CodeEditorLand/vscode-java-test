@@ -32,11 +32,15 @@ export class JavaTestCoverageProvider {
 				projectName,
 				getJacocoReportBasePath(projectName),
 			)) || [];
+
 		for (const sourceFileCoverage of sourceFileCoverages) {
 			const uri: Uri = Uri.parse(sourceFileCoverage.uriString);
+
 			const detailedCoverage: FileCoverageDetail[] = [];
+
 			for (const lineCoverage of sourceFileCoverage.lineCoverages) {
 				const branchCoverages: BranchCoverage[] = [];
+
 				for (const branchCoverage of lineCoverage.branchCoverages) {
 					branchCoverages.push(
 						new BranchCoverage(

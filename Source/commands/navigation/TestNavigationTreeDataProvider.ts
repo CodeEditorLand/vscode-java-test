@@ -23,6 +23,7 @@ export class TestNavigationTreeDataProvider
 			title: "Open Type Location",
 			arguments: [Uri.parse(element.uri)],
 		};
+
 		return treeItem;
 	}
 

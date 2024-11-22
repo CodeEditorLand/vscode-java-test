@@ -15,13 +15,16 @@ class TestSourcePathProvider {
 		containsGeneral: boolean = true,
 	): Promise<RelativePattern[]> {
 		const patterns: RelativePattern[] = [];
+
 		const sourcePaths: string[] =
 			await testSourceProvider.getTestSourcePath(
 				workspaceFolder,
 				containsGeneral,
 			);
+
 		for (const sourcePath of sourcePaths) {
 			const normalizedPath: string = Uri.file(sourcePath).fsPath;
+
 			const pattern: RelativePattern = new RelativePattern(
 				normalizedPath,
 				"**/*.java",
@@ -50,17 +53,21 @@ class TestSourcePathProvider {
 	public async isOnTestSourcePath(uri: Uri): Promise<boolean> {
 		const workspaceFolder: WorkspaceFolder | undefined =
 			workspace.getWorkspaceFolder(uri);
+
 		if (!workspaceFolder) {
 			return false;
 		}
 		const testPaths: ITestSourcePath[] =
 			await this.getTestPaths(workspaceFolder);
+
 		const fsPath: string = uri.fsPath;
+
 		for (const testPath of testPaths) {
 			const relativePath: string = path.relative(
 				testPath.testSourcePath,
 				fsPath,
 			);
+
 			if (!relativePath.startsWith("..")) {
 				return true;
 			}
@@ -81,6 +88,7 @@ class TestSourcePathProvider {
 	): Promise<ITestSourcePath[]> {
 		let testPaths: ITestSourcePath[] | undefined =
 			this.testSourceMapping.get(workspaceFolder.uri);
+
 		if (!testPaths) {
 			testPaths = await getTestSourcePaths([
 				workspaceFolder.uri.toString(),

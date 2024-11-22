@@ -29,6 +29,7 @@ import { dataCache } from "./testItemDataCache";
  */
 export async function loadJavaProjects(): Promise<void> {
 	let testProjects: IJavaTestItem[] = [];
+
 	for (const workspaceFolder of workspace.workspaceFolders || []) {
 		testProjects.push(...(await getJavaProjects(workspaceFolder)));
 	}
@@ -39,6 +40,7 @@ export async function loadJavaProjects(): Promise<void> {
 		(await getProjectType(testProjects[0])) === ProjectType.UnmanagedFolder
 	) {
 		commands.executeCommand("setContext", "java:needSetupTests", true);
+
 		return;
 	}
 
@@ -71,7 +73,9 @@ export async function getProjectType(
 	const hasClasspathFile: boolean = await fse.pathExists(
 		path.join(Uri.parse(item.uri!).fsPath, ".classpath"),
 	);
+
 	let hasJavaNature: boolean = false;
+
 	for (const id of item.natureIds) {
 		if (id.includes("maven2Nature")) {
 			return ProjectType.Maven;
@@ -112,6 +116,7 @@ export function synchronizeItemsRecursively(
 			const existingItem: IJavaTestItem | undefined = childrenData.find(
 				(data: IJavaTestItem) => data.id === child.id,
 			);
+
 			if (!existingItem) {
 				parent.children.delete(child.id);
 			}
@@ -119,6 +124,7 @@ export function synchronizeItemsRecursively(
 		// update/create children
 		for (const child of childrenData) {
 			const childItem: TestItem = updateOrCreateTestItem(parent, child);
+
 			if (child.testLevel <= TestLevel.Class) {
 				childItem.canResolveChildren = true;
 			}
@@ -132,6 +138,7 @@ export function updateOrCreateTestItem(
 	childData: IJavaTestItem,
 ): TestItem {
 	let childItem: TestItem | undefined = parent.children.get(childData.id);
+
 	if (childItem) {
 		updateTestItem(childItem, childData);
 	} else {
@@ -200,12 +207,16 @@ function getCodiconLabel(testLevel: TestLevel): string {
 	switch (testLevel) {
 		case TestLevel.Project:
 			return "$(project)";
+
 		case TestLevel.Package:
 			return "$(symbol-namespace)";
+
 		case TestLevel.Class:
 			return "$(symbol-class)";
+
 		case TestLevel.Method:
 			return "$(symbol-method)";
+
 		default:
 			return "";
 	}
@@ -225,19 +236,24 @@ export async function updateItemForDocumentWithDebounce(
 		clearTimeout(updateNodeForDocumentTimeout);
 	}
 	const timeout: number = getRequestDelay(uri);
+
 	return new Promise<TestItem[]>(
 		(resolve: (items: TestItem[]) => void): void => {
 			updateNodeForDocumentTimeout = setTimeout(async () => {
 				const startTime: number = performance.now();
+
 				const result: TestItem[] = await updateItemForDocument(
 					uri,
 					testTypes,
 				);
+
 				const executionTime: number = performance.now() - startTime;
+
 				const movingAverage: MovingAverage =
 					lruCache.get(uri) || new MovingAverage();
 				movingAverage.update(executionTime);
 				lruCache.set(uri, movingAverage);
+
 				return resolve(result);
 			}, timeout);
 		},
@@ -256,6 +272,7 @@ export async function updateItemForDocument(
 	testTypes = testTypes ?? (await findTestTypesAndMethods(uri.toString()));
 
 	let belongingPackage: TestItem | undefined;
+
 	if (testTypes.length === 0) {
 		belongingPackage = await resolveBelongingPackage(uri);
 	} else {
@@ -271,6 +288,7 @@ export async function updateItemForDocument(
 	}
 
 	const tests: TestItem[] = [];
+
 	if (testTypes.length === 0) {
 		// Remove the children with the same uri when no test items is found
 		belongingPackage.children.forEach((typeItem: TestItem) => {
@@ -284,6 +302,7 @@ export async function updateItemForDocument(
 			// children of the belonging package, we don't want to delete other children unexpectedly.
 			let testTypeItem: TestItem | undefined =
 				belongingPackage.children.get(testType.id);
+
 			if (!testTypeItem) {
 				testTypeItem = createTestItem(testType, belongingPackage);
 				testTypeItem.canResolveChildren = true;
@@ -309,23 +328,29 @@ function findBelongingPackageItem(
 	testType: IJavaTestItem,
 ): TestItem | undefined {
 	const indexOfProjectSeparator: number = testType.id.indexOf("@");
+
 	if (indexOfProjectSeparator < 0) {
 		return undefined;
 	}
 	const projectId: string = testType.id.substring(0, indexOfProjectSeparator);
+
 	const projectItem: TestItem | undefined =
 		testController?.items.get(projectId);
+
 	if (!projectItem) {
 		return undefined;
 	}
 	const indexOfPackageSeparator: number = testType.id.lastIndexOf(".");
+
 	const packageId: string = testType.id.substring(
 		indexOfProjectSeparator + 1,
 		indexOfPackageSeparator,
 	);
+
 	const packageItem: TestItem | undefined = projectItem.children.get(
 		`${projectId}@${packageId}`,
 	);
+
 	return packageItem;
 }
 
@@ -336,11 +361,13 @@ async function resolveBelongingPackage(
 	uri: Uri,
 ): Promise<TestItem | undefined> {
 	const pathsData: IJavaTestItem[] = await resolvePath(uri.toString());
+
 	if (_.isEmpty(pathsData) || pathsData.length < 2) {
 		return undefined;
 	}
 
 	const projectData: IJavaTestItem = pathsData[0];
+
 	if (projectData.testLevel !== TestLevel.Project) {
 		return undefined;
 	}
@@ -348,6 +375,7 @@ async function resolveBelongingPackage(
 	let belongingProject: TestItem | undefined = testController?.items.get(
 		projectData.id,
 	);
+
 	if (!belongingProject) {
 		belongingProject = createTestItem(projectData);
 		testController?.items.add(belongingProject);
@@ -355,6 +383,7 @@ async function resolveBelongingPackage(
 	}
 
 	const packageData: IJavaTestItem = pathsData[1];
+
 	if (packageData.testLevel !== TestLevel.Package) {
 		return undefined;
 	}
@@ -362,6 +391,7 @@ async function resolveBelongingPackage(
 	let belongingPackage: TestItem | undefined = belongingProject.children.get(
 		packageData.id,
 	);
+
 	if (!belongingPackage) {
 		belongingPackage = createTestItem(packageData, belongingProject);
 		belongingPackage.canResolveChildren = true;

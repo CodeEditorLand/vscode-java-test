@@ -27,15 +27,19 @@ import { IJavaTestItem, ProjectType } from "../types";
 
 export async function enableTests(testKind?: TestKind): Promise<void> {
 	const project: IJavaTestItem | undefined = await getTargetProject();
+
 	if (!project) {
 		return;
 	}
 
 	const projectType: ProjectType = await getProjectType(project);
+
 	switch (projectType) {
 		case ProjectType.UnmanagedFolder:
 			await setupUnmanagedFolder(Uri.parse(project.uri!), testKind);
+
 			return;
+
 		default:
 			// currently other typed projects are not supported.
 			break;
@@ -45,6 +49,7 @@ export async function enableTests(testKind?: TestKind): Promise<void> {
 
 async function getTargetProject(): Promise<IJavaTestItem | undefined> {
 	let testProjects: IJavaTestItem[] = [];
+
 	for (const workspaceFolder of workspace.workspaceFolders || []) {
 		testProjects.push(...(await getJavaProjects(workspaceFolder)));
 	}
@@ -55,6 +60,7 @@ async function getTargetProject(): Promise<IJavaTestItem | undefined> {
 
 	if (testProjects.length === 0) {
 		sendError(new Error("Failed to find a project to enable tests."));
+
 		return undefined;
 	}
 
@@ -67,11 +73,14 @@ async function setupUnmanagedFolder(
 	testKind?: TestKind,
 ): Promise<void> {
 	testKind ??= await getTestKind();
+
 	if (testKind === undefined) {
 		return;
 	}
 	const libFolder: string = await getLibFolder(projectUri);
+
 	const libFolderExists: boolean = await fse.pathExists(libFolder);
+
 	if (!libFolderExists) {
 		await fse.ensureDir(libFolder);
 	}
@@ -87,6 +96,7 @@ async function setupUnmanagedFolder(
 				token: CancellationToken,
 			) => {
 				const metadata: IArtifactMetadata[] = getJarIds(testKind!);
+
 				for (const jar of metadata) {
 					if (token.isCancellationRequested) {
 						throw new Error("User cancelled");
@@ -94,6 +104,7 @@ async function setupUnmanagedFolder(
 					progress.report({
 						message: `Downloading ${jar.artifactId}.jar...`,
 					});
+
 					if (!jar.version) {
 						jar.version =
 							(await getLatestVersion(
@@ -146,6 +157,7 @@ async function getTestKind(): Promise<TestKind | undefined> {
 			placeHolder: "Select the test framework to be enabled.",
 		},
 	);
+
 	return framework?.value;
 }
 
@@ -153,6 +165,7 @@ async function getLibFolder(projectUri: Uri): Promise<string> {
 	const referencedLibraries: any = workspace
 		.getConfiguration("java", projectUri)
 		.get("project.referencedLibraries");
+
 	if (_.isArray(referencedLibraries)) {
 		// do a simple check if the project uses default lib location.
 		if (referencedLibraries.includes("lib/**/*.jar")) {
@@ -165,6 +178,7 @@ async function getLibFolder(projectUri: Uri): Promise<string> {
 			projectUri.fsPath,
 			`test-lib${i > 0 ? i : ""}`,
 		);
+
 		if (await fse.pathExists(folderPath)) {
 			continue;
 		}
@@ -184,6 +198,7 @@ function getJarIds(testKind: TestKind): IArtifactMetadata[] {
 					defaultVersion: "1.9.3",
 				},
 			];
+
 		case TestKind.JUnit:
 			return [
 				{
@@ -198,6 +213,7 @@ function getJarIds(testKind: TestKind): IArtifactMetadata[] {
 					defaultVersion: "1.3",
 				},
 			];
+
 		case TestKind.TestNG:
 			return [
 				{
@@ -216,6 +232,7 @@ function getJarIds(testKind: TestKind): IArtifactMetadata[] {
 					defaultVersion: "2.0.7",
 				},
 			];
+
 		default:
 			return [];
 	}
@@ -234,6 +251,7 @@ async function getLatestVersion(
 			sendError(
 				new Error("Invalid format for the latest version response"),
 			);
+
 			return undefined;
 		}
 		return response.response.docs[0].latestVersion;
@@ -262,16 +280,21 @@ async function downloadJar(
 		progress.report({
 			message: `Downloading ${artifactId}-${version}.jar...`,
 		});
+
 		const tempFilePath: string = path.join(
 			os.tmpdir(),
 			`${artifactId}-${version}.jar`,
 		);
+
 		const writer: WriteStream = createWriteStream(tempFilePath);
 
 		const url: string = getDownloadLink(groupId, artifactId, version);
+
 		const totalSize: number = await getTotalBytes(url);
+
 		if (token.isCancellationRequested) {
 			writer.close();
+
 			return reject(new Error("User cancelled"));
 		}
 		const req: ClientRequest = https.get(url, (res: IncomingMessage) => {
@@ -299,11 +322,13 @@ async function downloadJar(
 
 		writer.on("finish", () => {
 			writer.close();
+
 			const filePath: string = path.join(
 				libFolder,
 				`${artifactId}-${version}.jar`,
 			);
 			fse.move(tempFilePath, filePath, { overwrite: false });
+
 			return resolve();
 		});
 
@@ -324,18 +349,23 @@ async function updateProjectSettings(
 		window.showInformationMessage(
 			"Test libraries have been downloaded into 'lib/'.",
 		);
+
 		return;
 	}
 
 	const relativePath: string = path.relative(projectUri.fsPath, libFolder);
+
 	const testDependencies: string = path.join(relativePath, "**", "*.jar");
+
 	const configuration: WorkspaceConfiguration = workspace.getConfiguration(
 		"java",
 		projectUri,
 	);
+
 	let referencedLibraries: any = configuration.get(
 		"project.referencedLibraries",
 	);
+
 	if (_.isArray(referencedLibraries)) {
 		referencedLibraries.push(testDependencies);
 		referencedLibraries = Array.from(new Set(referencedLibraries));
@@ -345,6 +375,7 @@ async function updateProjectSettings(
 		referencedLibraries.include = Array.from(
 			new Set(referencedLibraries.include),
 		);
+
 		if (!referencedLibraries.exclude && !referencedLibraries.sources) {
 			referencedLibraries = referencedLibraries.include;
 		}
@@ -385,6 +416,7 @@ async function getHttpsAsJSON(link: string): Promise<any> {
 			},
 		);
 	});
+
 	return JSON.parse(response);
 }
 
@@ -392,6 +424,7 @@ async function getTotalBytes(url: string): Promise<number> {
 	// eslint-disable-next-line @typescript-eslint/typedef
 	return new Promise<number>((resolve, reject) => {
 		const link: URL = new URL(url);
+
 		const req: ClientRequest = https.request(
 			{
 				host: link.host,
@@ -427,5 +460,6 @@ interface IArtifactMetadata {
 	groupId: string;
 	artifactId: string;
 	version?: string;
+
 	defaultVersion: string;
 }

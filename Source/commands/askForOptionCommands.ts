@@ -258,11 +258,13 @@ const keywords: Set<string> = new Set([
 	"super",
 	"while",
 ]);
+
 export function isKeyword(identifier: string): boolean {
 	return keywords.has(identifier);
 }
 
 const identifierRegExp: RegExp = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
+
 export function isJavaIdentifier(identifier: string): boolean {
 	return identifierRegExp.test(identifier);
 }

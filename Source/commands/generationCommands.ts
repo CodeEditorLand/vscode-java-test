@@ -9,6 +9,7 @@ import { executeJavaLanguageServerCommand } from "../utils/commandUtils";
 
 const converter: protocolConverter.Converter =
 	protocolConverter.createConverter();
+
 export async function generateTests(
 	uri: Uri,
 	cursorOffset: number,

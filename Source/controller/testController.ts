@@ -69,7 +69,9 @@ import {
 } from "./utils";
 
 export let testController: TestController | undefined;
+
 export const watchers: Disposable[] = [];
+
 export const runnableTag: TestTag = new TestTag("runnable");
 
 export function createTestController(): void {

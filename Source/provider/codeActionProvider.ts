@@ -13,6 +13,7 @@ import {
 } from "vscode";
 
 let provider: Disposable;
+
 export class TestCodeActionProvider implements CodeActionProvider {
 	public async provideCodeActions(
 		document: TextDocument,

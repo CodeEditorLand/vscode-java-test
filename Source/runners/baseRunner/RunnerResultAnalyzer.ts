@@ -10,7 +10,9 @@ export abstract class RunnerResultAnalyzer {
 	constructor(protected testContext: IRunTestContext) {}
 
 	public abstract analyzeData(data: string): void;
+
 	public abstract processData(data: string): void;
+
 	protected testMessageLocation: Location | undefined;
 
 	/**

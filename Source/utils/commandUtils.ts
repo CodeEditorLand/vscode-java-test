@@ -18,6 +18,7 @@ export async function executeJavaLanguageServerCommand<T>(
 		if (isCancelledError(error)) {
 			return;
 		}
+
 		sendError(error);
 
 		throw error;

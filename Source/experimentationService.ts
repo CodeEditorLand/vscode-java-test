@@ -42,6 +42,7 @@ export async function initExpService(context: ExtensionContext): Promise<void> {
 	const extensionName: string = `${packageJson["publisher"]}.${packageJson["name"]}`;
 
 	const extensionVersion: string = packageJson["version"];
+
 	expService = await getExperimentationServiceAsync(
 		extensionName,
 		extensionVersion,

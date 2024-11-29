@@ -103,6 +103,7 @@ export function processStackTraceLine(
 
 		if (locationResult) {
 			sourceName = locationResult[1];
+
 			lineNumLiteral = locationResult[2];
 		}
 
@@ -112,7 +113,9 @@ export function processStackTraceLine(
 			const atLiteral: string = traceResults[1];
 
 			const optionalModuleName: string = traceResults[2] || "";
+
 			traces.appendText(atLiteral);
+
 			traces.appendMarkdown(
 				`${optionalModuleName + fullyQualifiedName}([${sourceName}:${lineNumLiteral}](command:_java.test.openStackTrace?${encodeURIComponent(JSON.stringify([lineOfMessage, projectName]))}))`,
 			);
@@ -151,6 +154,7 @@ export function processStackTraceLine(
 		// '<' & '>' will be escaped when displaying the test message, so replacing them to '[' & ']'.
 		traces.appendText(lineOfMessage.replace(/</g, "[").replace(/>/g, "]"));
 	}
+
 	traces.appendMarkdown("<br/>");
 
 	return testMessageLocation;

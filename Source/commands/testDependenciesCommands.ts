@@ -44,6 +44,7 @@ export async function enableTests(testKind?: TestKind): Promise<void> {
 			// currently other typed projects are not supported.
 			break;
 	}
+
 	return;
 }
 
@@ -77,6 +78,7 @@ async function setupUnmanagedFolder(
 	if (testKind === undefined) {
 		return;
 	}
+
 	const libFolder: string = await getLibFolder(projectUri);
 
 	const libFolderExists: boolean = await fse.pathExists(libFolder);
@@ -101,6 +103,7 @@ async function setupUnmanagedFolder(
 					if (token.isCancellationRequested) {
 						throw new Error("User cancelled");
 					}
+
 					progress.report({
 						message: `Downloading ${jar.artifactId}.jar...`,
 					});
@@ -112,6 +115,7 @@ async function setupUnmanagedFolder(
 								jar.artifactId,
 							)) || jar.defaultVersion;
 					}
+
 					await downloadJar(
 						libFolder,
 						jar.groupId,
@@ -128,9 +132,11 @@ async function setupUnmanagedFolder(
 		if (e?.message !== "User cancelled") {
 			sendError(e);
 		}
+
 		if (!libFolderExists) {
 			fse.remove(libFolder);
 		}
+
 		return;
 	}
 
@@ -182,6 +188,7 @@ async function getLibFolder(projectUri: Uri): Promise<string> {
 		if (await fse.pathExists(folderPath)) {
 			continue;
 		}
+
 		return folderPath;
 	}
 
@@ -254,6 +261,7 @@ async function getLatestVersion(
 
 			return undefined;
 		}
+
 		return response.response.docs[0].latestVersion;
 	} catch (e) {
 		sendError(
@@ -297,8 +305,10 @@ async function downloadJar(
 
 			return reject(new Error("User cancelled"));
 		}
+
 		const req: ClientRequest = https.get(url, (res: IncomingMessage) => {
 			res.pipe(writer);
+
 			res.on("data", (chunk: any) => {
 				progress.report({
 					message: `Downloading ${artifactId}-${version}.jar...`,
@@ -309,14 +319,19 @@ async function downloadJar(
 
 		token.onCancellationRequested(() => {
 			req.destroy();
+
 			writer.close();
+
 			fse.unlink(tempFilePath);
+
 			reject(new Error("User cancelled"));
 		});
 
 		req.on("error", (err: any) => {
 			writer.close();
+
 			fse.unlink(tempFilePath);
+
 			reject(err);
 		});
 
@@ -327,6 +342,7 @@ async function downloadJar(
 				libFolder,
 				`${artifactId}-${version}.jar`,
 			);
+
 			fse.move(tempFilePath, filePath, { overwrite: false });
 
 			return resolve();
@@ -334,7 +350,9 @@ async function downloadJar(
 
 		writer.on("error", () => {
 			writer.close();
+
 			fse.unlink(tempFilePath);
+
 			reject(new Error("Failed to write jar file."));
 		});
 	});
@@ -368,10 +386,13 @@ async function updateProjectSettings(
 
 	if (_.isArray(referencedLibraries)) {
 		referencedLibraries.push(testDependencies);
+
 		referencedLibraries = Array.from(new Set(referencedLibraries));
 	} else if (_.isObject(referencedLibraries)) {
 		referencedLibraries = referencedLibraries as { include: string[] };
+
 		referencedLibraries.include.push(testDependencies);
+
 		referencedLibraries.include = Array.from(
 			new Set(referencedLibraries.include),
 		);
@@ -382,6 +403,7 @@ async function updateProjectSettings(
 	}
 
 	configuration.update("project.referencedLibraries", referencedLibraries);
+
 	window.showInformationMessage(
 		`Test libraries have been downloaded into '${relativePath}/'.`,
 	);
@@ -391,6 +413,7 @@ async function getHttpsAsJSON(link: string): Promise<any> {
 	// eslint-disable-next-line @typescript-eslint/typedef
 	const response: string = await new Promise<string>((resolve, reject) => {
 		let result: string = "";
+
 		https.get(
 			link,
 			{
@@ -406,12 +429,15 @@ async function getHttpsAsJSON(link: string): Promise<any> {
 						),
 					);
 				}
+
 				res.on("data", (chunk: any) => {
 					result = result.concat(chunk.toString());
 				});
+
 				res.on("end", () => {
 					resolve(result);
 				});
+
 				res.on("error", reject);
 			},
 		);
@@ -436,10 +462,13 @@ async function getTotalBytes(url: string): Promise<number> {
 					res.headers["content-length"] as string,
 					10,
 				);
+
 				resolve(num);
 			},
 		);
+
 		req.on("error", reject);
+
 		req.end();
 	});
 }
@@ -458,7 +487,9 @@ function getDownloadLink(
 
 interface IArtifactMetadata {
 	groupId: string;
+
 	artifactId: string;
+
 	version?: string;
 
 	defaultVersion: string;

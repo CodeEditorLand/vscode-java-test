@@ -76,6 +76,7 @@ export const runnableTag: TestTag = new TestTag("runnable");
 
 export function createTestController(): void {
 	testController?.dispose();
+
 	testController = tests.createTestController("java", "Java Test");
 
 	testController.resolveHandler = async (item: TestItem) => {
@@ -89,6 +90,7 @@ export function createTestController(): void {
 		true,
 		runnableTag,
 	);
+
 	testController.createRunProfile(
 		"Debug Tests",
 		TestRunProfileKind.Debug,
@@ -96,6 +98,7 @@ export function createTestController(): void {
 		true,
 		runnableTag,
 	);
+
 	testController.createRunProfile(
 		"Run Tests with Coverage",
 		TestRunProfileKind.Coverage,
@@ -140,9 +143,11 @@ export const loadChildren: (item: TestItem, token?: CancellationToken) => any =
 			if (!data) {
 				return;
 			}
+
 			if (data.testLevel === TestLevel.Project) {
 				const packageAndTypes: IJavaTestItem[] =
 					await findTestPackagesAndTypes(data.jdtHandler, token);
+
 				synchronizeItemsRecursively(item, packageAndTypes);
 			} else if (data.testLevel === TestLevel.Package) {
 				// unreachable code
@@ -156,11 +161,13 @@ export const loadChildren: (item: TestItem, token?: CancellationToken) => any =
 
 					return;
 				}
+
 				const testMethods: IJavaTestItem[] =
 					await findDirectTestChildrenForClass(
 						data.jdtHandler,
 						token,
 					);
+
 				synchronizeItemsRecursively(item, testMethods);
 			}
 		},
@@ -182,6 +189,7 @@ async function startWatchingWorkspace(): Promise<void> {
 		for (const pattern of patterns) {
 			const watcher: FileSystemWatcher =
 				workspace.createFileSystemWatcher(pattern);
+
 			watchers.push(
 				watcher,
 				watcher.onDidCreate(async (uri: Uri) => {
@@ -191,6 +199,7 @@ async function startWatchingWorkspace(): Promise<void> {
 					if (testTypes.length === 0) {
 						return;
 					}
+
 					await updateItemForDocumentWithDebounce(uri, testTypes);
 				}),
 				watcher.onDidChange(async (uri: Uri) => {
@@ -278,6 +287,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 						progressProvider?.createProgressReporter(
 							option.isDebug ? "Debug Tests" : "Run Tests",
 						);
+
 					option.token?.onCancellationRequested(() => {
 						option.progressReporter?.done();
 
@@ -286,18 +296,21 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 
 					const progressToken: CancellationToken | undefined =
 						option.progressReporter?.getCancellationToken();
+
 					option.onProgressCancelHandler =
 						progressToken?.onCancellationRequested(() => {
 							option.progressReporter?.done();
 
 							return resolve([]);
 						});
+
 					option.progressReporter?.report("Searching tests...");
 
 					const result: TestItem[] = await getIncludedItems(
 						request,
 						progressToken,
 					);
+
 					await expandTests(result, TestLevel.Method, progressToken);
 
 					return resolve(result);
@@ -316,6 +329,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 
 			if (request.profile?.kind === TestRunProfileKind.Coverage) {
 				coverageProvider = new JavaTestCoverageProvider();
+
 				request.profile.loadDetailedCoverage = (
 					_testRun: TestRun,
 					fileCoverage: FileCoverage,
@@ -334,13 +348,17 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 							option.token ?? run.token;
 
 						let disposables: Disposable[] = [];
+
 						token.onCancellationRequested(() => {
 							option.progressReporter?.done();
+
 							run.end();
+
 							disposables.forEach((d: Disposable) => d.dispose());
 
 							return resolve();
 						});
+
 						enqueueTestMethods(testItems, run);
 						// TODO: first group by project, then merge test methods.
 						const queue: TestItem[][] = mergeTestMethods(testItems);
@@ -349,6 +367,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 							if (testsInQueue.length === 0) {
 								continue;
 							}
+
 							const testProjectMapping: Map<string, TestItem[]> =
 								mapTestItemsByProject(testsInQueue);
 
@@ -369,6 +388,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 
 									continue;
 								}
+
 								const testContext: IRunTestContext = {
 									isDebug: option.isDebug,
 									kind: TestKind.None,
@@ -397,13 +417,16 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 										run,
 										disposables,
 									);
+
 									disposables.forEach((d: Disposable) =>
 										d.dispose(),
 									);
+
 									disposables = [];
 
 									continue;
 								}
+
 								const testKindMapping: Map<
 									TestKind,
 									TestItem[]
@@ -414,6 +437,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 									items,
 								] of testKindMapping.entries()) {
 									testContext.kind = kind;
+
 									testContext.testItems = items;
 
 									if (
@@ -426,8 +450,11 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 													: "Run Tests",
 											);
 									}
+
 									let delegatedToDebugger: boolean = false;
+
 									option.onProgressCancelHandler?.dispose();
+
 									option.progressReporter
 										?.getCancellationToken()
 										.onCancellationRequested(() => {
@@ -436,10 +463,12 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 												// might be emitted due to debug session finished, thus we will ignore such event.
 												return;
 											}
+
 											option.progressReporter?.done();
 
 											return resolve();
 										});
+
 									option.progressReporter?.report(
 										"Resolving launch configuration...",
 									);
@@ -447,6 +476,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 									if (!testContext.testConfig) {
 										continue;
 									}
+
 									const runner: BaseRunner | undefined =
 										getRunnerByContext(testContext);
 
@@ -457,6 +487,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 
 										continue;
 									}
+
 									try {
 										await runner.setup();
 
@@ -470,14 +501,18 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 												testContext,
 												testContext.testConfig,
 											));
+
 										resolvedConfiguration.__progressId =
 											option.progressReporter?.getId();
+
 										delegatedToDebugger = true;
+
 										trackTestFrameworkVersion(
 											testContext.kind,
 											resolvedConfiguration.classPaths,
 											resolvedConfiguration.modulePaths,
 										);
+
 										await runner.run(
 											resolvedConfiguration,
 											token,
@@ -488,11 +523,13 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 											error.message ||
 												"Failed to run tests.",
 										);
+
 										option.progressReporter?.done();
 									} finally {
 										await runner.tearDown();
 									}
 								}
+
 								if (
 									request.profile?.kind ===
 									TestRunProfileKind.Coverage
@@ -504,6 +541,7 @@ export const runTests: (request: TestRunRequest, option: IRunOption) => any =
 								}
 							}
 						}
+
 						return resolve();
 					},
 				);
@@ -521,6 +559,7 @@ async function executeWithTestRunner(
 	disposables: Disposable[],
 ) {
 	option.progressReporter?.done();
+
 	await new Promise<void>(async (resolve: () => void): Promise<void> => {
 		disposables.push(
 			testRunner.onDidChangeTestItemStatus(
@@ -535,10 +574,12 @@ async function executeWithTestRunner(
 						parentItem = findTestClass(parts);
 					} catch (e) {
 						sendError(e);
+
 						window.showErrorMessage(e.message);
 
 						return resolve();
 					}
+
 					let currentItem: TestItem | undefined;
 
 					const invocations: string[] | undefined = parts.invocations;
@@ -554,6 +595,7 @@ async function executeWithTestRunner(
 							if (!currentItem) {
 								break;
 							}
+
 							parentItem = currentItem;
 						}
 
@@ -561,6 +603,7 @@ async function executeWithTestRunner(
 							window.showErrorMessage(
 								"Test not found:" + event.testId,
 							);
+
 							sendError(
 								new Error("Test not found:" + event.testId),
 							);
@@ -598,6 +641,7 @@ async function executeWithTestRunner(
 					) {
 						currentItem.description = event.displayName;
 					}
+
 					switch (event.state) {
 						case TestResultState.Running:
 							run.started(currentItem);
@@ -616,11 +660,14 @@ async function executeWithTestRunner(
 							if (event.message) {
 								const markdownTrace: MarkdownString =
 									new MarkdownString();
+
 								markdownTrace.supportHtml = true;
+
 								markdownTrace.isTrusted = true;
 
 								const testMessage: TestMessage =
 									new TestMessage(markdownTrace);
+
 								testMessages.push(testMessage);
 
 								const lines: string[] =
@@ -640,6 +687,7 @@ async function executeWithTestRunner(
 									}
 								}
 							}
+
 							run.failed(currentItem, testMessages);
 
 							break;
@@ -664,6 +712,7 @@ async function executeWithTestRunner(
 						event.message ?? "Failed to run tests.",
 					);
 				}
+
 				return resolve();
 			}),
 		);
@@ -705,6 +754,7 @@ async function executeWithTestRunner(
 		if (!current) {
 			throw new Error("Failed to get the class test item.");
 		}
+
 		for (let i: number = 1; i < classes.length; i++) {
 			current = current.children.get(`${current.id}$${classes[i]}`);
 
@@ -712,6 +762,7 @@ async function executeWithTestRunner(
 				throw new Error("Failed to get the class test item.");
 			}
 		}
+
 		return current;
 	}
 }
@@ -732,6 +783,7 @@ function mergeConfigurations(
 			launchConfiguration[configKey] = config[configKey];
 		}
 	}
+
 	return launchConfiguration;
 }
 
@@ -743,7 +795,9 @@ function enqueueTestMethods(testItems: TestItem[], run: TestRun): void {
 
 	while (queuedTests.length) {
 		const queuedTest: TestItem = queuedTests.shift()!;
+
 		run.enqueued(queuedTest);
+
 		queuedTest.children.forEach((child: TestItem) => {
 			queuedTests.push(child);
 		});
@@ -768,10 +822,13 @@ async function getIncludedItems(
 			testItems.push(item);
 		});
 	}
+
 	if (testItems.length === 0) {
 		return [];
 	}
+
 	testItems = handleInvocations(testItems);
+
 	testItems = await expandTests(testItems, TestLevel.Class, token);
 	// @ts-expect-error: ignore
 	const excludingItems: TestItem[] = await expandTests(
@@ -779,6 +836,7 @@ async function getIncludedItems(
 		TestLevel.Class,
 		token,
 	);
+
 	testItems = _.differenceBy(testItems, excludingItems, "id");
 
 	return testItems;
@@ -802,7 +860,9 @@ export function handleInvocations(testItems: TestItem[]): TestItem[] {
 		// sanity-checks
 		const errMsg: string =
 			"Trying to re-run a single test invocation, but could not find a corresponding method-level parent item with data.";
+
 		sendError(new Error(errMsg));
+
 		window.showErrorMessage(errMsg);
 
 		return [];
@@ -841,6 +901,7 @@ export function handleInvocations(testItems: TestItem[]): TestItem[] {
 
 			return item.parent!;
 		}
+
 		return item;
 	});
 
@@ -905,8 +966,10 @@ function isAncestorIncluded(
 		if (potentialAncestors.includes(parent)) {
 			return true;
 		}
+
 		parent = parent.parent;
 	}
+
 	return false;
 }
 
@@ -932,15 +995,18 @@ async function expandTests(
 		if (testLevel === undefined) {
 			continue;
 		}
+
 		if (testLevel >= targetLevel) {
 			results.add(item);
 		} else {
 			await loadChildren(item, token);
+
 			item.children.forEach((child: TestItem) => {
 				queue.push(child);
 			});
 		}
 	}
+
 	return Array.from(results);
 }
 
@@ -960,11 +1026,13 @@ function removeNonRerunTestInvocations(testItems: TestItem[]): void {
 		if (rerunMethods.includes(item)) {
 			continue;
 		}
+
 		if (dataCache.get(item)?.testLevel === TestLevel.Invocation) {
 			item.parent?.children.delete(item.id);
 
 			continue;
 		}
+
 		item.children.forEach((child: TestItem) => {
 			queue.push(child);
 		});
@@ -987,9 +1055,11 @@ function mergeTestMethods(testItems: TestItem[]): TestItem[][] {
 		if (testLevel === undefined) {
 			return map;
 		}
+
 		if (testLevel === TestLevel.Class) {
 			map.set(i.id, i);
 		}
+
 		return map;
 	}, new Map());
 
@@ -1002,6 +1072,7 @@ function mergeTestMethods(testItems: TestItem[]): TestItem[][] {
 			if (testLevel === undefined) {
 				return map;
 			}
+
 			if (testLevel !== TestLevel.Method) {
 				return map;
 			}
@@ -1057,6 +1128,7 @@ function mapTestItemsByProject(items: TestItem[]): Map<string, TestItem[]> {
 
 			continue;
 		}
+
 		const itemsPerProject: TestItem[] | undefined = map.get(projectName);
 
 		if (itemsPerProject) {
@@ -1065,6 +1137,7 @@ function mapTestItemsByProject(items: TestItem[]): Map<string, TestItem[]> {
 			map.set(projectName, [item]);
 		}
 	}
+
 	return map;
 }
 
@@ -1077,6 +1150,7 @@ function mapTestItemsByKind(items: TestItem[]): Map<TestKind, TestItem[]> {
 		if (testKind === undefined) {
 			continue;
 		}
+
 		const itemsPerKind: TestItem[] | undefined = map.get(testKind);
 
 		if (itemsPerKind) {
@@ -1085,6 +1159,7 @@ function mapTestItemsByKind(items: TestItem[]): Map<TestKind, TestItem[]> {
 			map.set(testKind, [item]);
 		}
 	}
+
 	return map;
 }
 
@@ -1131,6 +1206,7 @@ function trackTestFrameworkVersion(
 		default:
 			return;
 	}
+
 	let version: string = "unknown";
 
 	for (const entry of [...classpaths, ...modulepaths]) {
@@ -1144,6 +1220,7 @@ function trackTestFrameworkVersion(
 			break;
 		}
 	}
+
 	sendInfo("", {
 		testFramework: TestKind[testKind],
 		frameworkVersion: version,
@@ -1160,13 +1237,18 @@ function getLabelWithoutCodicon(name: string): string {
 	if (result?.length === 2) {
 		return result[1];
 	}
+
 	return name;
 }
 
 interface IRunOption {
 	isDebug: boolean;
+
 	progressReporter?: IProgressReporter;
+
 	onProgressCancelHandler?: Disposable;
+
 	launchConfiguration?: DebugConfiguration;
+
 	token?: CancellationToken;
 }

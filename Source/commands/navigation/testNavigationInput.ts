@@ -11,8 +11,11 @@ export class TestNavigationInput
 	implements SymbolTreeInput<ITestNavigationItem>
 {
 	readonly title: string;
+
 	readonly location: Location;
+
 	readonly contextValue: string = "javaTestNavigation";
+
 	items: ITestNavigationItem[];
 
 	constructor(
@@ -21,7 +24,9 @@ export class TestNavigationInput
 		items: ITestNavigationItem[],
 	) {
 		this.title = title;
+
 		this.location = location;
+
 		this.items = items;
 	}
 

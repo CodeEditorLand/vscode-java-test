@@ -8,10 +8,12 @@ import { IRunTestContext } from "../java-test-runner.api";
 
 export interface ITestRunnerInternal {
 	setup(context: IRunTestContext): Promise<void>;
+
 	run(
 		launchConfiguration: DebugConfiguration,
 		token: CancellationToken,
 		progressReporter?: IProgressReporter,
 	): Promise<void>;
+
 	tearDown(isCancel: boolean): Promise<void>;
 }

@@ -24,7 +24,9 @@ class TestRunnerService {
 		if (this.registeredRunners.has(key)) {
 			throw new Error(`Runner ${key} has already been registered.`);
 		}
+
 		creatTestProfile(name, kind);
+
 		this.registeredRunners.set(key, runner);
 	}
 
@@ -35,6 +37,7 @@ class TestRunnerService {
 		if (!name || !kind) {
 			return undefined;
 		}
+
 		const key: string = `${name}:${kind}`;
 
 		return this.registeredRunners.get(key);

@@ -24,6 +24,7 @@ export class TestNGRunner extends BaseRunner {
 			if (testLevel === undefined) {
 				continue;
 			}
+
 			if (testLevel === TestLevel.Method) {
 				testMethods.push(item);
 			} else {
@@ -43,6 +44,7 @@ export class TestNGRunner extends BaseRunner {
 					if (index < 0) {
 						return "";
 					}
+
 					return method.id.slice(index + 1);
 				})
 				.filter(Boolean),

@@ -75,6 +75,7 @@ let componentsRegistered: boolean = false;
 
 export async function activate(context: ExtensionContext): Promise<any> {
 	extensionContext = context;
+
 	await initializeFromJsonFile(context.asAbsolutePath("./package.json"), {
 		replacementOptions: [
 			{
@@ -84,7 +85,9 @@ export async function activate(context: ExtensionContext): Promise<any> {
 			},
 		],
 	});
+
 	await initExpService(context);
+
 	await instrumentOperation("activation", doActivate)(context);
 
 	return {
@@ -102,7 +105,9 @@ export async function activate(context: ExtensionContext): Promise<any> {
 
 export async function deactivate(): Promise<void> {
 	disposeCodeActionProvider();
+
 	await disposeTelemetryWrapper();
+
 	testController?.dispose();
 
 	for (const disposable of watchers) {
@@ -128,10 +133,12 @@ async function doActivate(
 			if (extensionApi.onDidServerModeChange) {
 				const onDidServerModeChange: Event<string> =
 					extensionApi.onDidServerModeChange;
+
 				context.subscriptions.push(
 					onDidServerModeChange(async (mode: string) => {
 						if (mode === LanguageServerMode.Standard) {
 							testSourceProvider.clear();
+
 							registerComponents(context);
 						}
 					}),
@@ -139,17 +146,20 @@ async function doActivate(
 			}
 		} else {
 			await extensionApi.serverReady();
+
 			registerComponents(context);
 		}
 
 		if (extensionApi.onDidClasspathUpdate) {
 			const onDidClasspathUpdate: Event<Uri> =
 				extensionApi.onDidClasspathUpdate;
+
 			context.subscriptions.push(
 				onDidClasspathUpdate(async () => {
 					// workaround: wait more time to make sure Language Server has updated all caches
 					setTimeout(() => {
 						testSourceProvider.clear();
+
 						refreshExplorer();
 					}, 1000 /* ms */);
 				}),
@@ -159,9 +169,11 @@ async function doActivate(
 		if (extensionApi.onDidProjectsImport) {
 			const onDidProjectsImport: Event<Uri[]> =
 				extensionApi.onDidProjectsImport;
+
 			context.subscriptions.push(
 				onDidProjectsImport(async () => {
 					testSourceProvider.clear();
+
 					refreshExplorer();
 				}),
 			);
@@ -181,9 +193,13 @@ function registerComponents(context: ExtensionContext): void {
 	if (componentsRegistered) {
 		return;
 	}
+
 	componentsRegistered = true;
+
 	registerAskForChoiceCommand(context);
+
 	registerAdvanceAskForChoice(context);
+
 	registerAskForInputCommand(context);
 
 	context.subscriptions.push(
@@ -283,8 +299,11 @@ function registerComponents(context: ExtensionContext): void {
 	);
 
 	registerTestCodeActionProvider();
+
 	createTestController();
+
 	showTestItemsInCurrentFile();
+
 	commands.executeCommand("setContext", Context.ACTIVATION_CONTEXT_KEY, true);
 }
 

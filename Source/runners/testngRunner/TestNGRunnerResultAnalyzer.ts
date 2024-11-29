@@ -22,12 +22,16 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	private readonly regex: RegExp = /@@<TestRunner-({[\s\S]*?})-TestRunner>/g;
 
 	private triggeredTestsMapping: Map<string, TestItem> = new Map();
+
 	private currentTestState: TestResultState;
+
 	private currentItem: TestItem | undefined;
+
 	private projectName: string;
 
 	constructor(protected testContext: IRunTestContext) {
 		super(testContext);
+
 		this.projectName = testContext.projectName;
 
 		const queue: TestItem[] = [...testContext.testItems];
@@ -41,6 +45,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (testLevel === undefined) {
 				continue;
 			}
+
 			if (testLevel === TestLevel.Method) {
 				this.triggeredTestsMapping.set(item.id, item);
 			} else {
@@ -84,7 +89,9 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!item) {
 				return;
 			}
+
 			this.currentTestState = TestResultState.Running;
+
 			this.testContext.testRun.started(item);
 		} else if (outputData.name === TEST_FAIL) {
 			const item: TestItem | undefined = this.getTestItem(id);
@@ -92,13 +99,16 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!item) {
 				return;
 			}
+
 			this.currentTestState = TestResultState.Failed;
 
 			const testMessages: TestMessage[] = [];
 
 			if (outputData.attributes.trace) {
 				const markdownTrace: MarkdownString = new MarkdownString();
+
 				markdownTrace.isTrusted = true;
+
 				markdownTrace.supportHtml = true;
 
 				for (const line of outputData.attributes.trace.split(/\r?\n/)) {
@@ -114,12 +124,15 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 				if (this.testMessageLocation) {
 					testMessage.location = this.testMessageLocation;
+
 					this.testMessageLocation = undefined;
 				} else if (item.uri && item.range) {
 					testMessage.location = new Location(item.uri, item.range);
 				}
+
 				testMessages.push(testMessage);
 			}
+
 			const duration: number = Number.parseInt(
 				outputData.attributes.duration,
 				10,
@@ -138,9 +151,11 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!item) {
 				return;
 			}
+
 			if (this.currentTestState === TestResultState.Running) {
 				this.currentTestState = TestResultState.Passed;
 			}
+
 			const duration: number = Number.parseInt(
 				outputData.attributes.duration,
 				10,
@@ -178,6 +193,7 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 	protected initializeCache(): void {
 		this.currentTestState = TestResultState.Queued;
+
 		this.currentItem = undefined;
 	}
 
@@ -198,7 +214,9 @@ export class TestNGRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 interface ITestNGOutputData {
 	attributes: ITestNGAttributes;
+
 	type: TestOutputType;
+
 	name: string;
 }
 
@@ -209,8 +227,12 @@ enum TestOutputType {
 
 interface ITestNGAttributes {
 	name: string;
+
 	duration: string;
+
 	location: string;
+
 	message: string;
+
 	trace: string;
 }

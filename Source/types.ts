@@ -7,14 +7,23 @@ import { TestKind, TestLevel } from "./java-test-runner.api";
 
 export interface IJavaTestItem {
 	children: IJavaTestItem[];
+
 	uri: string | undefined;
+
 	range: Range | undefined;
+
 	jdtHandler: string;
+
 	fullName: string;
+
 	label: string;
+
 	id: string;
+
 	projectName: string;
+
 	testKind: TestKind;
+
 	testLevel: TestLevel;
 	/**
 	 * Provides a hint to the UI on how to sort tests.

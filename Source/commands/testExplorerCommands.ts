@@ -25,6 +25,7 @@ export async function runTestsFromTestExplorer(
 
 	do {
 		pathToRoot.push(testItem.id);
+
 		testItem = testItem.parent!;
 	} while (testItem);
 
@@ -35,14 +36,17 @@ export async function runTestsFromTestExplorer(
 	if (!currentItem) {
 		return;
 	}
+
 	while (pathToRoot.length) {
 		const id: string = pathToRoot.pop()!;
+
 		currentItem = currentItem.children.get(id);
 
 		if (!currentItem) {
 			return;
 		}
 	}
+
 	const request: TestRunRequest = new TestRunRequest(
 		[currentItem],
 		undefined,
@@ -53,10 +57,12 @@ export async function runTestsFromTestExplorer(
 
 export async function refreshExplorer(): Promise<void> {
 	sendInfo("", { name: "refreshTests" });
+
 	testController?.items.forEach((root: TestItem) => {
 		testController?.items.delete(root.id);
 	});
 
 	await loadJavaProjects();
+
 	await showTestItemsInCurrentFile();
 }

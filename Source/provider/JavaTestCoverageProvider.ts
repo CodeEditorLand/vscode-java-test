@@ -49,14 +49,17 @@ export class JavaTestCoverageProvider {
 						),
 					);
 				}
+
 				const statementCoverage: StatementCoverage =
 					new StatementCoverage(
 						lineCoverage.hit,
 						new Position(lineCoverage.lineNumber - 1, 0),
 						branchCoverages,
 					);
+
 				detailedCoverage.push(statementCoverage);
 			}
+
 			for (const methodCoverage of sourceFileCoverage.methodCoverages) {
 				const functionCoverage: DeclarationCoverage =
 					new DeclarationCoverage(
@@ -64,9 +67,12 @@ export class JavaTestCoverageProvider {
 						methodCoverage.hit,
 						new Position(methodCoverage.lineNumber - 1, 0),
 					);
+
 				detailedCoverage.push(functionCoverage);
 			}
+
 			run.addCoverage(FileCoverage.fromDetails(uri, detailedCoverage));
+
 			this.coverageDetails.set(uri, detailedCoverage);
 		}
 	}
@@ -78,13 +84,17 @@ export class JavaTestCoverageProvider {
 
 interface ISourceFileCoverage {
 	uriString: string;
+
 	lineCoverages: ILineCoverage[];
+
 	methodCoverages: IMethodCoverages[];
 }
 
 interface ILineCoverage {
 	lineNumber: number;
+
 	hit: number;
+
 	branchCoverages: IBranchCoverage[];
 }
 
@@ -94,6 +104,8 @@ interface IBranchCoverage {
 
 interface IMethodCoverages {
 	lineNumber: number;
+
 	hit: number;
+
 	name: string;
 }

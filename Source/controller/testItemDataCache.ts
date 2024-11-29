@@ -30,9 +30,14 @@ export const dataCache: TestItemDataCache = new TestItemDataCache();
 
 export interface ITestItemData {
 	jdtHandler: string;
+
 	fullName: string;
+
 	projectName: string;
+
 	testLevel: TestLevel;
+
 	testKind: TestKind;
+
 	uniqueId?: string;
 }

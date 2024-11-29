@@ -27,6 +27,7 @@ export async function runTestsFromJavaProjectExplorer(
 		progressProvider?.createProgressReporter(
 			isDebug ? "Debug Test" : "Run Test",
 		);
+
 	progressReporter?.report("Searching tests...");
 
 	const tests: TestItem[] = [];
@@ -37,6 +38,7 @@ export async function runTestsFromJavaProjectExplorer(
 		if (!testController?.items.size) {
 			await loadJavaProjects();
 		}
+
 		const projectName: string = node._project.name;
 
 		const projectItem: TestItem | undefined =
@@ -51,9 +53,11 @@ export async function runTestsFromJavaProjectExplorer(
 
 			return;
 		}
+
 		await loadChildren(projectItem);
 
 		const nodeFsPath: string = Uri.parse(node._nodeData.uri).fsPath;
+
 		projectItem.children.forEach((child: TestItem) => {
 			const itemPath: string = child.uri?.fsPath || "";
 

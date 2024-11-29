@@ -54,7 +54,9 @@ export async function loadJavaProjects(): Promise<void> {
 		}
 
 		const projectItem: TestItem = createTestItem(project);
+
 		projectItem.canResolveChildren = true;
+
 		testController?.items.add(projectItem);
 	}
 }
@@ -113,6 +115,7 @@ export function synchronizeItemsRecursively(
 				// only remove the invocation items before a new test session starts
 				return;
 			}
+
 			const existingItem: IJavaTestItem | undefined = childrenData.find(
 				(data: IJavaTestItem) => data.id === child.id,
 			);
@@ -128,6 +131,7 @@ export function synchronizeItemsRecursively(
 			if (child.testLevel <= TestLevel.Class) {
 				childItem.canResolveChildren = true;
 			}
+
 			synchronizeItemsRecursively(childItem, child.children);
 		}
 	}
@@ -144,12 +148,15 @@ export function updateOrCreateTestItem(
 	} else {
 		childItem = createTestItem(childData, parent);
 	}
+
 	return childItem;
 }
 
 function updateTestItem(testItem: TestItem, metaInfo: IJavaTestItem): void {
 	testItem.range = asRange(metaInfo.range);
+
 	testItem.label = `${getCodiconLabel(metaInfo.testLevel)} ${metaInfo.label}`;
+
 	dataCache.set(testItem, {
 		jdtHandler: metaInfo.jdtHandler,
 		fullName: metaInfo.fullName,
@@ -174,13 +181,17 @@ export function createTestItem(
 			"Failed to create test item. The test controller is not initialized.",
 		);
 	}
+
 	const item: TestItem = testController.createTestItem(
 		metaInfo.id,
 		`${getCodiconLabel(metaInfo.testLevel)} ${metaInfo.label}`.trim(),
 		metaInfo.uri ? Uri.parse(metaInfo.uri) : undefined,
 	);
+
 	item.range = asRange(metaInfo.range);
+
 	item.tags = [runnableTag];
+
 	dataCache.set(item, {
 		jdtHandler: metaInfo.jdtHandler,
 		fullName: metaInfo.fullName,
@@ -197,6 +208,7 @@ export function createTestItem(
 	if (parent) {
 		parent.children.add(item);
 	}
+
 	return item;
 }
 
@@ -235,6 +247,7 @@ export async function updateItemForDocumentWithDebounce(
 	if (updateNodeForDocumentTimeout) {
 		clearTimeout(updateNodeForDocumentTimeout);
 	}
+
 	const timeout: number = getRequestDelay(uri);
 
 	return new Promise<TestItem[]>(
@@ -251,7 +264,9 @@ export async function updateItemForDocumentWithDebounce(
 
 				const movingAverage: MovingAverage =
 					lruCache.get(uri) || new MovingAverage();
+
 				movingAverage.update(executionTime);
+
 				lruCache.set(uri, movingAverage);
 
 				return resolve(result);
@@ -280,10 +295,12 @@ export async function updateItemForDocument(
 			findBelongingPackageItem(testTypes[0]) ||
 			(await resolveBelongingPackage(uri));
 	}
+
 	if (!belongingPackage) {
 		if (testTypes.length > 0) {
 			sendError(new Error("Failed to find the belonging package"));
 		}
+
 		return [];
 	}
 
@@ -305,11 +322,14 @@ export async function updateItemForDocument(
 
 			if (!testTypeItem) {
 				testTypeItem = createTestItem(testType, belongingPackage);
+
 				testTypeItem.canResolveChildren = true;
 			} else {
 				updateTestItem(testTypeItem, testType);
 			}
+
 			tests.push(testTypeItem);
+
 			synchronizeItemsRecursively(testTypeItem, testType.children);
 		}
 	}
@@ -332,6 +352,7 @@ function findBelongingPackageItem(
 	if (indexOfProjectSeparator < 0) {
 		return undefined;
 	}
+
 	const projectId: string = testType.id.substring(0, indexOfProjectSeparator);
 
 	const projectItem: TestItem | undefined =
@@ -340,6 +361,7 @@ function findBelongingPackageItem(
 	if (!projectItem) {
 		return undefined;
 	}
+
 	const indexOfPackageSeparator: number = testType.id.lastIndexOf(".");
 
 	const packageId: string = testType.id.substring(
@@ -378,7 +400,9 @@ async function resolveBelongingPackage(
 
 	if (!belongingProject) {
 		belongingProject = createTestItem(projectData);
+
 		testController?.items.add(belongingProject);
+
 		belongingProject.canResolveChildren = true;
 	}
 
@@ -394,8 +418,10 @@ async function resolveBelongingPackage(
 
 	if (!belongingPackage) {
 		belongingPackage = createTestItem(packageData, belongingProject);
+
 		belongingPackage.canResolveChildren = true;
 	}
+
 	return belongingPackage;
 }
 
@@ -407,6 +433,7 @@ export function asRange(range: any): Range | undefined {
 	if (!range) {
 		return undefined;
 	}
+
 	return new Range(
 		range.start.line,
 		range.start.character,

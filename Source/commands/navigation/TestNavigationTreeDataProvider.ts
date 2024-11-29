@@ -16,8 +16,11 @@ export class TestNavigationTreeDataProvider
 
 	getTreeItem(element: ITestNavigationItem): TreeItem | Thenable<TreeItem> {
 		const treeItem: TreeItem = new TreeItem(element.simpleName);
+
 		treeItem.resourceUri = Uri.file(element.uri);
+
 		treeItem.description = element.fullyQualifiedName;
+
 		treeItem.command = {
 			command: "vscode.open",
 			title: "Open Type Location",

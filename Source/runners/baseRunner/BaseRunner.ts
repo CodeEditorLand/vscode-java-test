@@ -22,7 +22,9 @@ import { RunnerResultAnalyzer } from "./RunnerResultAnalyzer";
 
 export abstract class BaseRunner implements ITestRunnerInternal {
 	protected server: Server;
+
 	protected socket: Socket;
+
 	protected runnerResultAnalyzer: RunnerResultAnalyzer;
 
 	private disposables: Disposable[] = [];
@@ -31,6 +33,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 
 	public async setup(): Promise<void> {
 		await this.startSocketServer();
+
 		this.runnerResultAnalyzer = this.getAnalyzer();
 	}
 
@@ -40,8 +43,10 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 		progressReporter?: IProgressReporter,
 	): Promise<void> {
 		let data: string = "";
+
 		this.server.on("connection", (socket: Socket) => {
 			this.socket = socket;
+
 			socket.on("error", (err: Error) => {
 				throw err;
 			});
@@ -60,6 +65,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 					this.runnerResultAnalyzer.analyzeData(
 						data.substring(0, index + os.EOL.length),
 					);
+
 					data = data.substring(index + os.EOL.length);
 				}
 			});
@@ -78,6 +84,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 		launchConfiguration.console = "internalConsole";
 
 		let debugSession: DebugSession | undefined;
+
 		this.disposables.push(
 			debug.onDidStartDebugSession((session: DebugSession) => {
 				if (session.name === launchConfiguration.name) {
@@ -91,6 +98,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 
 			return;
 		}
+
 		return await debug
 			.startDebugging(
 				this.testContext.workspaceFolder,
@@ -120,6 +128,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 											session.name
 										) {
 											debugSession = undefined;
+
 											this.tearDown();
 
 											if (data.length > 0) {
@@ -127,6 +136,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 													data,
 												);
 											}
+
 											return resolve();
 										}
 									},
@@ -147,14 +157,18 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 		try {
 			if (this.socket) {
 				this.socket.removeAllListeners();
+
 				this.socket.destroy();
 			}
+
 			if (this.server) {
 				this.server.removeAllListeners();
+
 				this.server.close(() => {
 					this.server.unref();
 				});
 			}
+
 			for (const disposable of this.disposables) {
 				disposable.dispose();
 			}
@@ -165,6 +179,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 
 	public getApplicationArgs(config?: IExecutionConfig): string[] {
 		const applicationArgs: string[] = [];
+
 		applicationArgs.push(`${(this.server.address() as AddressInfo).port}`);
 
 		applicationArgs.push(...this.getRunnerCommandParams());
@@ -180,6 +195,7 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 		this.server = createServer();
 
 		const socketPort: number = await getPort();
+
 		await new Promise<void>((resolve: () => void): void => {
 			this.server.listen(socketPort, Configurations.LOCAL_HOST, resolve);
 		});
@@ -194,17 +210,24 @@ export abstract class BaseRunner implements ITestRunnerInternal {
 
 export interface IJUnitLaunchArguments {
 	workingDirectory: string;
+
 	mainClass: string;
+
 	projectName: string;
 
 	classpath: string[];
+
 	modulepath: string[];
+
 	vmArguments: string[];
+
 	programArguments: string[];
 }
 
 export interface Response<T> {
 	body: T | undefined;
+
 	status: number;
+
 	errorMessage: string | undefined;
 }

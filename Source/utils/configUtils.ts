@@ -136,15 +136,18 @@ async function selectQuickPick(
 		const label: string = configs[i].name
 			? configs[i].name!
 			: `Configuration #${i + 1}`;
+
 		choices.push({
 			label,
 			detail: JSON.stringify(configs[i]),
 			item: configs[i],
 		});
 	}
+
 	if (choices.length === 1) {
 		return choices[0].item;
 	}
+
 	const selection: IRunConfigQuickPick | undefined =
 		await window.showQuickPick(choices, {
 			ignoreFocusOut: true,
@@ -176,6 +179,7 @@ async function askPreferenceForConfig(
 	if (!showHint) {
 		return;
 	}
+
 	const choice: string | undefined = await window.showInformationMessage(
 		"Would you like to set this configuration as default?",
 		Dialog.YES,
@@ -193,6 +197,7 @@ async function askPreferenceForConfig(
 
 		return;
 	}
+
 	if (selectedConfig.name) {
 		workspaceConfiguration.update(
 			Configurations.DEFAULT_CONFIG_NAME_SETTING_KEY,
@@ -201,12 +206,15 @@ async function askPreferenceForConfig(
 		);
 	} else {
 		const randomName: string = `config-${randomSequence()}`;
+
 		selectedConfig.name = randomName;
+
 		workspaceConfiguration.update(
 			Configurations.DEFAULT_CONFIG_NAME_SETTING_KEY,
 			selectedConfig.name,
 			ConfigurationTarget.WorkspaceFolder,
 		);
+
 		workspaceConfiguration.update(
 			Configurations.CONFIG_SETTING_KEY,
 			configs,
@@ -311,6 +319,7 @@ export class WhenClauseEvaluationContext {
 
 	private evaluateTokens(tokens: Token[], start?: number, end?: number) {
 		start ||= 0;
+
 		end ||= tokens.length;
 
 		const currentTokens: Token[] = tokens.slice(start, end);
@@ -339,6 +348,7 @@ export class WhenClauseEvaluationContext {
 					parenthesesStart + 1,
 					parenthesesEnd,
 				);
+
 				currentTokens.splice(
 					parenthesesStart,
 					parenthesesEnd - parenthesesStart + 1,

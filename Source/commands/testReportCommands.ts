@@ -30,6 +30,7 @@ export async function openStackTrace(
 		if (lineNumberGroup) {
 			lineNumber = parseInt(lineNumberGroup[1], 10) - 1;
 		}
+
 		await window.showTextDocument(Uri.parse(uri), {
 			selection: new Range(
 				new Position(lineNumber, 0),
@@ -50,6 +51,7 @@ export async function openStackTrace(
 			const className: string = fullyQualifiedName.substring(
 				fullyQualifiedName.lastIndexOf(".") + 1,
 			);
+
 			commands.executeCommand(
 				"workbench.action.quickOpen",
 				"#" + className,

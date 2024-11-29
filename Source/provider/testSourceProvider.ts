@@ -29,8 +29,10 @@ class TestSourcePathProvider {
 				normalizedPath,
 				"**/*.java",
 			);
+
 			patterns.push(pattern);
 		}
+
 		return patterns;
 	}
 
@@ -57,6 +59,7 @@ class TestSourcePathProvider {
 		if (!workspaceFolder) {
 			return false;
 		}
+
 		const testPaths: ITestSourcePath[] =
 			await this.getTestPaths(workspaceFolder);
 
@@ -72,6 +75,7 @@ class TestSourcePathProvider {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -93,8 +97,10 @@ class TestSourcePathProvider {
 			testPaths = await getTestSourcePaths([
 				workspaceFolder.uri.toString(),
 			]);
+
 			this.testSourceMapping.set(workspaceFolder.uri, testPaths);
 		}
+
 		return testPaths;
 	}
 }

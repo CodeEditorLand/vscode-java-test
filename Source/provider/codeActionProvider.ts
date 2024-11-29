@@ -25,6 +25,7 @@ export class TestCodeActionProvider implements CodeActionProvider {
 		) {
 			return [];
 		}
+
 		return [this.getCodeAction(document, range)];
 	}
 
@@ -38,6 +39,7 @@ export class TestCodeActionProvider implements CodeActionProvider {
 			"Generate Tests...",
 			CodeActionKind.Source.append("generate.tests"),
 		);
+
 		codeAction.command = {
 			title: "Generate Tests...",
 			command: "java.test.generateTests",

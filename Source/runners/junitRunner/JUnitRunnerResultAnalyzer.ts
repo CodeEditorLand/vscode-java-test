@@ -18,8 +18,11 @@ import { findTestLocation, setTestState } from "../utils";
 
 export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	private testOutputMapping: Map<string, ITestInfo> = new Map();
+
 	private triggeredTestsMapping: Map<string, TestItem> = new Map();
+
 	private projectName: string;
+
 	private incompleteTestSuite: ITestInfo[] = [];
 
 	// tests may be run concurrently, so each item's current state needs to be remembered
@@ -27,14 +30,20 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 	// failure info for a test is received consecutively:
 	private tracingItem: TestItem | undefined;
+
 	private traces: MarkdownString;
+
 	private assertionFailure: TestMessage | undefined;
+
 	private recordingType: RecordingType;
+
 	private expectString: string;
+
 	private actualString: string;
 
 	constructor(protected testContext: IRunTestContext) {
 		super(testContext);
+
 		this.projectName = testContext.projectName;
 
 		const queue: TestItem[] = [...testContext.testItems];
@@ -54,6 +63,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					queue.push(child);
 				});
 			}
+
 			this.triggeredTestsMapping.set(item.id, item);
 		}
 	}
@@ -63,6 +73,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 		for (const line of lines) {
 			this.processData(line);
+
 			this.testContext.testRun.appendOutput(line + "\r\n");
 		}
 	}
@@ -80,7 +91,9 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!item) {
 				return;
 			}
+
 			this.setCurrentState(item, TestResultState.Running, 0);
+
 			this.setDurationAtStart(this.getCurrentState(item));
 
 			setTestState(
@@ -96,8 +109,11 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!item) {
 				return;
 			}
+
 			const currentState: CurrentItemState = this.getCurrentState(item);
+
 			this.calcDurationAtEnd(currentState);
+
 			this.determineResultStateAtEnd(data, currentState);
 
 			setTestState(
@@ -115,8 +131,11 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			if (!item) {
 				return;
 			}
+
 			const currentState: CurrentItemState = this.getCurrentState(item);
+
 			this.determineResultStateOnFailure(data, currentState);
+
 			this.initializeTracingItemProcessingCache(item); // traces or comparison failure info might follow immediately
 		} else if (data.startsWith(MessageId.TestError)) {
 			let item: TestItem | undefined = this.getTestItem(
@@ -131,6 +150,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					return;
 				}
 			}
+
 			this.getCurrentState(item).resultState = TestResultState.Errored;
 
 			if (item.id !== this.tracingItem?.id) {
@@ -138,13 +158,17 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 			}
 		} else if (data.startsWith(MessageId.TraceStart)) {
 			this.traces = new MarkdownString();
+
 			this.traces.isTrusted = true;
+
 			this.traces.supportHtml = true;
+
 			this.recordingType = RecordingType.StackTrace;
 		} else if (data.startsWith(MessageId.TraceEnd)) {
 			if (!this.tracingItem) {
 				return;
 			}
+
 			const currentResultState: TestResultState = this.getCurrentState(
 				this.tracingItem,
 			).resultState;
@@ -156,6 +180,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					currentResultState,
 				);
 			}
+
 			if (this.traces?.value) {
 				this.tryAppendMessage(
 					this.tracingItem,
@@ -163,6 +188,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					currentResultState,
 				);
 			}
+
 			if (currentResultState === TestResultState.Errored) {
 				setTestState(
 					this.testContext.testRun,
@@ -170,16 +196,19 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					currentResultState,
 				);
 			}
+
 			this.recordingType = RecordingType.None;
 		} else if (data.startsWith(MessageId.ExpectStart)) {
 			this.recordingType = RecordingType.ExpectMessage;
 		} else if (data.startsWith(MessageId.ExpectEnd)) {
 			this.recordingType = RecordingType.None;
+
 			this.expectString = this.expectString.replace(/\n$/, "");
 		} else if (data.startsWith(MessageId.ActualStart)) {
 			this.recordingType = RecordingType.ActualMessage;
 		} else if (data.startsWith(MessageId.ActualEnd)) {
 			this.recordingType = RecordingType.None;
+
 			this.actualString = this.actualString.replace(/\n$/, "");
 
 			if (
@@ -213,6 +242,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					);
 				}
 			}
+
 			this.processStackTrace(
 				data,
 				this.traces,
@@ -228,6 +258,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	): void {
 		const isSkip: boolean =
 			data.indexOf(MessageId.ASSUMPTION_FAILED_TEST_PREFIX) > -1;
+
 		currentState.resultState = isSkip
 			? TestResultState.Skipped
 			: TestResultState.Failed;
@@ -261,6 +292,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 	private calcDurationAtEnd(currentState: CurrentItemState): void {
 		if (currentState.duration < 0) {
 			const end: number = Date.now();
+
 			currentState.duration += end;
 		}
 	}
@@ -396,6 +428,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		const params: string[] = rawParamsString.split(",");
 
 		let paramString: string = "";
+
 		params.forEach((param: string) => {
 			paramString += `${param.substring(param.lastIndexOf(".") + 1)}, `;
 		});
@@ -426,10 +459,15 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 	private initializeTracingItemProcessingCache(item: TestItem): void {
 		this.tracingItem = item;
+
 		this.assertionFailure = undefined;
+
 		this.expectString = "";
+
 		this.actualString = "";
+
 		this.recordingType = RecordingType.None;
+
 		this.testMessageLocation = undefined;
 	}
 
@@ -510,11 +548,13 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 
 					const parentSuite: ITestInfo =
 						this.incompleteTestSuite[suiteIdx];
+
 					parentSuite.testCount--;
 
 					if (parentSuite.testCount <= 0) {
 						this.incompleteTestSuite.pop();
 					}
+
 					if (!testItem && parentSuite.testItem) {
 						const itemData: IJavaTestItem | undefined = {
 							children: [],
@@ -528,6 +568,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 							testKind: this.testContext.kind,
 							testLevel: TestLevel.Invocation,
 						};
+
 						testItem = createTestItem(
 							itemData,
 							parentSuite.testItem,
@@ -611,9 +652,12 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 					id = id.substring(0, id.lastIndexOf("["));
 				}
 			}
+
 			const location: Location | undefined = await findTestLocation(id);
+
 			testMessage.location = location;
 		}
+
 		setTestState(this.testContext.testRun, item, testState, testMessage);
 	}
 
@@ -624,6 +668,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		if (index > 0) {
 			return testName.substring(0, index);
 		}
+
 		return testName;
 	}
 
@@ -641,6 +686,7 @@ export class JUnitRunnerResultAnalyzer extends RunnerResultAnalyzer {
 		if (result?.length === 2) {
 			return result[1];
 		}
+
 		return name;
 	}
 }
@@ -675,7 +721,9 @@ enum MessageId {
 
 interface ITestInfo {
 	testId: string;
+
 	testCount: number;
+
 	testItem: TestItem | undefined;
 }
 
@@ -688,5 +736,6 @@ enum RecordingType {
 
 interface CurrentItemState {
 	resultState: TestResultState;
+
 	duration: number;
 }

@@ -69,18 +69,25 @@ export async function registerAdvanceAskForChoice(
 								choices.filter((c: IOption) => {
 									return !c.isAdvanced;
 								}).length === 0;
+
 							quickPick.title = placeHolder;
+
 							quickPick.placeholder = placeHolder;
+
 							quickPick.items = filterOptions(
 								showAdvancedItem,
 								choices,
 							);
+
 							quickPick.buttons = getActionButtons(
 								showAdvancedItem,
 								advancedAction,
 							);
+
 							quickPick.canSelectMany = canPickMany;
+
 							quickPick.ignoreFocusOut = true;
+
 							disposables.push(
 								quickPick.onDidTriggerButton(
 									(btn: QuickInputButton) => {
@@ -91,10 +98,12 @@ export async function registerAdvanceAskForChoice(
 										) {
 											showAdvancedItem =
 												!showAdvancedItem;
+
 											quickPick.items = filterOptions(
 												showAdvancedItem,
 												choices,
 											);
+
 											quickPick.buttons =
 												getActionButtons(
 													showAdvancedItem,
@@ -104,11 +113,13 @@ export async function registerAdvanceAskForChoice(
 									},
 								),
 							);
+
 							disposables.push(
 								quickPick.onDidHide(() => {
 									return resolve(undefined);
 								}),
 							);
+
 							disposables.push(
 								quickPick.onDidAccept(() => {
 									return resolve(
@@ -118,7 +129,9 @@ export async function registerAdvanceAskForChoice(
 									);
 								}),
 							);
+
 							disposables.push(quickPick);
+
 							quickPick.show();
 						},
 					);
@@ -127,6 +140,7 @@ export async function registerAdvanceAskForChoice(
 						d.dispose();
 					}
 				}
+
 				return result;
 			},
 		),
@@ -271,5 +285,6 @@ export function isJavaIdentifier(identifier: string): boolean {
 
 export interface IOption extends QuickPickItem {
 	value: string;
+
 	isAdvanced?: boolean;
 }

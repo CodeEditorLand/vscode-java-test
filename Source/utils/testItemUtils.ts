@@ -27,6 +27,7 @@ export function parsePartsFromTestId(testId: string): TestIdParts {
 	}
 
 	const project: string = testId.substring(0, idxOfProjectSeparator);
+
 	testId = testId.substring(idxOfProjectSeparator + 1);
 
 	const idxOfMethodStart: number = testId.indexOf("#");
@@ -50,6 +51,7 @@ export function parsePartsFromTestId(testId: string): TestIdParts {
 
 	if (idxOfMethodStart > 0) {
 		testId = testId.substring(idxOfMethodStart + 1);
+
 		invocations = [...testId.split("#")];
 	}
 

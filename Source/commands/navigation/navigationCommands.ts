@@ -35,6 +35,7 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 	if (!window.activeTextEditor) {
 		return;
 	}
+
 	const uri: Uri = window.activeTextEditor.document.uri;
 
 	const result: ITestNavigationResult | undefined = await searchTestOrTarget(
@@ -48,6 +49,7 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 		if (gotoTest) {
 			items.unshift(GENERATE_TESTS);
 		}
+
 		window
 			.showQuickPick(items, {
 				placeHolder: `${gotoTest ? "Tests" : "Test subjects"} not found for current file`,
@@ -61,6 +63,7 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 					if (!gotoTest) {
 						fileName = fileName.replace(/Tests?/g, "");
 					}
+
 					commands.executeCommand(
 						VSCodeCommands.WORKBENCH_ACTION_QUICK_OPEN,
 						fileName.substring(0, fileName.lastIndexOf(".")),
@@ -89,6 +92,7 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 					if (a.relevance === b.relevance) {
 						return a.simpleName.localeCompare(b.simpleName);
 					}
+
 					return a.relevance - b.relevance;
 				}
 			},
@@ -118,6 +122,7 @@ export async function navigateToTestOrTarget(gotoTest: boolean): Promise<void> {
 				),
 				sortedResults,
 			);
+
 			api.setInput(input);
 		} else {
 			fallbackForNavigation(sortedResults);
@@ -161,13 +166,18 @@ async function searchTestOrTarget(
 
 export interface ITestNavigationResult {
 	items: ITestNavigationItem[];
+
 	location: Location;
 }
 
 export interface ITestNavigationItem {
 	simpleName: string;
+
 	fullyQualifiedName: string;
+
 	uri: string;
+
 	relevance: number;
+
 	outOfBelongingProject: boolean;
 }

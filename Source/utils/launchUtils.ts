@@ -95,6 +95,7 @@ export async function resolveLaunchConfigurationForRunner(
 		if (config?.coverage?.appendResult === false) {
 			agentArg += ",append=false";
 		}
+
 		if (os.platform() === "win32") {
 			agentArg = `"${agentArg}"`;
 		}
@@ -115,6 +116,7 @@ async function getLaunchArguments(
 		const error: Error = new Error(
 			"Failed to get the required metadata to run",
 		);
+
 		sendError(error);
 
 		throw error;
@@ -189,6 +191,7 @@ async function resolveJUnitLaunchArguments(
 			argument?.errorMessage ||
 				"Failed to parse the JUnit launch arguments",
 		);
+
 		sendError(error);
 
 		throw error;
@@ -216,6 +219,7 @@ function parseTags(config: IExecutionConfig | undefined): string[] {
 			if (isExcluded) {
 				tag = tag.slice(1);
 			}
+
 			if (tag.length === 0) {
 				continue;
 			}
@@ -225,14 +229,17 @@ function parseTags(config: IExecutionConfig | undefined): string[] {
 			} else {
 				tags.push("--include-tag");
 			}
+
 			tags.push(tag);
 		}
 	}
+
 	if (tags.length) {
 		sendInfo("", {
 			testFilters: "tags",
 		});
 	}
+
 	return tags;
 }
 

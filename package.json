@@ -496,7 +496,7 @@
 		"@types/glob": "8.1.0",
 		"@types/lodash": "4.17.14",
 		"@types/lru-cache": "7.10.10",
-		"@types/node": "22.10.7",
+		"@types/node": "22.10.9",
 		"@types/sinon": "17.0.3",
 		"glob": "11.0.1",
 		"sinon": "19.0.2",
